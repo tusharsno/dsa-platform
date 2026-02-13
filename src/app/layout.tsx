@@ -33,14 +33,12 @@
 //   );
 // }
 
-
 // import type { Metadata } from "next";
 // import { Inter } from "next/font/google";
 // import "./globals.css";
 // import { ThemeProvider } from "@/providers/theme-provider";
 // import Navbar from "@/components/common/Navbar";
 // import Footer from "@/components/common/Footer";
-
 
 // const inter = Inter({ subsets: ["latin"] });
 
@@ -69,8 +67,135 @@
 //   );
 // }
 
+// before/02/2026
+// "use client"; // এটি যোগ করতে হবে কারণ আমরা ইউআরএল চেক করব
 
-"use client"; // এটি যোগ করতে হবে কারণ আমরা ইউআরএল চেক করব
+// import { Inter } from "next/font/google";
+// import "./globals.css";
+// import { ThemeProvider } from "@/providers/theme-provider";
+// import Navbar from "@/components/common/Navbar";
+// import Footer from "@/components/common/Footer";
+// import { usePathname } from "next/navigation";
+
+// const inter = Inter({ subsets: ["latin"] });
+
+// export default function RootLayout({
+//   children,
+// }: {
+//   children: React.ReactNode;
+// }) {
+//   const pathname = usePathname();
+
+//   // চেক করছি ইউআরএল কি /admin দিয়ে শুরু হয়েছে কি না
+//   const isAdminPage = pathname.startsWith("/admin");
+
+//   // নতুন লজিক: চেক করছি বর্তমান পেজটি '/topics' কি না
+//   const isTopicsPage = pathname === "/topics";
+
+//   return (
+//     <html lang="en" suppressHydrationWarning>
+//       <body className={inter.className}>
+//         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+//           {/* যদি অ্যাডমিন পেজ না হয়, তবেই ন্যাভবার দেখাবে */}
+//           {!isAdminPage && <Navbar />}
+
+//           <main className="min-h-screen">{children}</main>
+
+//           {/* যদি অ্যাডমিন পেজ না হয়, তবেই ফুটার দেখাবে */}
+//           {/* {!isAdminPage && <Footer />} */}
+//           {/* যদি অ্যাডমিন পেজ এবং টপিক পেজ কোনটিই না হয়, তবেই ফুটার দেখাবে */}
+//           {!isAdminPage && !isTopicsPage && <Footer />}
+//         </ThemeProvider>
+//       </body>
+//     </html>
+//   );
+// }
+
+// 12/02/2026
+// "use client";
+
+// import { Inter } from "next/font/google";
+// import "./globals.css";
+// import { ThemeProvider } from "@/providers/theme-provider";
+// import Navbar from "@/components/common/Navbar";
+// import Footer from "@/components/common/Footer";
+// import { usePathname } from "next/navigation";
+
+// const inter = Inter({ subsets: ["latin"] });
+
+// export default function RootLayout({
+//   children,
+// }: {
+//   children: React.ReactNode;
+// }) {
+//   const pathname = usePathname();
+
+//   // ১. অ্যাডমিন পেজ চেক
+//   const isAdminPage = pathname.startsWith("/admin");
+
+//   // ২. টপিক সংক্রান্ত সকল পেজ চেক (ডিটেইল পেজসহ)
+//   // startsWith ব্যবহার করলে /topics, /topics/arrays সব কভার হবে
+//   const isTopicsSection = pathname.startsWith("/topics");
+
+//   return (
+//     <html lang="en" suppressHydrationWarning>
+//       <body className={inter.className}>
+//         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+//           {!isAdminPage && <Navbar />}
+
+//           <main className="min-h-screen">{children}</main>
+
+//           {/* অ্যাডমিন এবং টপিক সেকশন—উভয় ক্ষেত্রেই ফুটার হাইড থাকবে */}
+//           {!isAdminPage && !isTopicsSection && <Footer />}
+//         </ThemeProvider>
+//       </body>
+//     </html>
+//   );
+// }
+
+// "use client";
+
+// import { Inter } from "next/font/google";
+// import "./globals.css";
+// import { ThemeProvider } from "@/providers/theme-provider";
+// import Navbar from "@/components/common/Navbar";
+// import Footer from "@/components/common/Footer";
+// import { usePathname } from "next/navigation";
+
+// const inter = Inter({ subsets: ["latin"] });
+
+// export default function RootLayout({
+//   children,
+// }: {
+//   children: React.ReactNode;
+// }) {
+//   const pathname = usePathname();
+
+//   // ১. চেক করছি ইউআরএল কি /admin দিয়ে শুরু হয়েছে কি না
+//   const isAdminPage = pathname.startsWith("/admin");
+
+//   // ২. চেক করছি ইউআরএল কি /topics দিয়ে শুরু হয়েছে কি না
+//   // (এটি /topics এবং /topics/arrays দুইক্ষেত্রেই কাজ করবে)
+//   const isTopicsSection = pathname.startsWith("/topics");
+
+//   return (
+//     <html lang="en" suppressHydrationWarning>
+//       <body className={inter.className}>
+//         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+//           {/* অ্যাডমিন পেজ না হলে ন্যাভবার দেখাবে */}
+//           {!isAdminPage && <Navbar />}
+
+//           <main className="min-h-screen">{children}</main>
+
+//           {/* অ্যাডমিন পেজ এবং টপিক সেকশন কোনটিই না হলে ফুটার দেখাবে */}
+//           {!isAdminPage && !isTopicsSection && <Footer />}
+//         </ThemeProvider>
+//       </body>
+//     </html>
+//   );
+// }
+
+"use client";
 
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -78,6 +203,8 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { ClerkProvider } from "@clerk/nextjs";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -87,27 +214,37 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  
-  // চেক করছি ইউআরএল কি /admin দিয়ে শুরু হয়েছে কি না
+
+  // ১. চেক করছি ইউআরএল কি /admin দিয়ে শুরু হয়েছে কি না
   const isAdminPage = pathname.startsWith("/admin");
 
+  // ২. চেক করছি ইউআরএল কি /topics বা /roadmap দিয়ে শুরু হয়েছে কি না
+  // এই সেকশনগুলোতে ফুটার হাইড করা থাকলে ইউজার ইন্টারফেস বেশি প্রফেশনাল লাগে
+  const isMinimalUI =
+    pathname.startsWith("/topics") ||
+    pathname.startsWith("/problems") ||
+    pathname.startsWith("/roadmap");
+
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          
-          {/* যদি অ্যাডমিন পেজ না হয়, তবেই ন্যাভবার দেখাবে */}
-          {!isAdminPage && <Navbar />}
-          
-          <main className="min-h-screen">
-            {children}
-          </main>
-          
-          {/* যদি অ্যাডমিন পেজ না হয়, তবেই ফুটার দেখাবে */}
-          {!isAdminPage && <Footer />}
-          
-        </ThemeProvider>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" suppressHydrationWarning>
+        <body
+          className={cn(
+            inter.className,
+            "bg-[#020617] selection:bg-blue-500/30", // আপনার ডিপ ব্লু থিমের জন্য গ্লোবাল ব্যাকগ্রাউন্ড
+          )}
+        >
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+            {/* অ্যাডমিন পেজ না হলে ন্যাভবার দেখাবে */}
+            {!isAdminPage && <Navbar />}
+
+            <main className="min-h-screen">{children}</main>
+
+            {/* অ্যাডমিন পেজ, টপিক সেকশন এবং রোডম্যাপ কোনটিই না হলে ফুটার দেখাবে */}
+            {!isAdminPage && !isMinimalUI && <Footer />}
+          </ThemeProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

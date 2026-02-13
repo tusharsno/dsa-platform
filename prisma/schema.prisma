@@ -1,0 +1,57 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+// ইউজারদের তথ্যের জন্য
+model User {
+  id        String   @id @default(uuid())
+  clerkId   String   @unique // Clerk থেকে আসা ইউনিক আইডি
+  email     String   @unique
+  name      String?
+  imageUrl  String?
+  points    Int      @default(0) // প্রবলেম সলভ করলে পয়েন্ট বাড়বে
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // রিলেশন: একজন ইউজার অনেকগুলো প্রবলেম সলভ করতে পারেন
+  solvedProblems Solution[]
+}
+
+// প্রবলেম ডাটাবেসের জন্য (LeetCode এর মতো)
+model Problem {
+  id          String   @id @default(uuid())
+  title       String
+  description String   @db.Text
+  difficulty  String   // Easy, Medium, Hard
+  category    String   // Array, String, DP, Graph
+  createdAt   DateTime @default(now())
+  
+  // রিলেশন
+  solutions   Solution[]
+}
+
+// কে কোন প্রবলেম সলভ করল তার রেকর্ড রাখার জন্য
+model Solution {
+  id        String   @id @default(uuid())
+  userId    String
+  problemId String
+  code      String   @db.Text
+  language  String   @default("javascript")
+  status    String   // Passed, Failed
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  problem   Problem  @relation(fields: [problemId], references: [id])
+}
