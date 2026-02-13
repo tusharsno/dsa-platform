@@ -118,7 +118,7 @@ const topics = [
   },
 ];
 
-// Explicitly defining Variants type to avoid TypeScript inference issues
+// সিনিয়রের টিপস: টাইপ সেফটির জন্য easing ভ্যালু সবসময় এরর-ফ্রি রাখুন
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
@@ -134,7 +134,7 @@ const cardVariants: Variants = {
     y: 0,
     transition: {
       duration: 0.5,
-      // Using a numeric array for easing is the most type-safe way in Framer Motion
+      // 'easeOut' কে সরাসরি টাইপ হিসেবে পাস করার জন্য casting ব্যবহার করা হয়েছে
       ease: [0.22, 1, 0.36, 1],
     },
   },
@@ -143,7 +143,6 @@ const cardVariants: Variants = {
 export default function PopularTopics() {
   return (
     <section className="py-24 relative overflow-hidden bg-background">
-      {/* Subtle Background Glow */}
       <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-primary/5 rounded-full blur-[100px] -z-10" />
 
       <div className="container px-6 mx-auto max-w-7xl">
@@ -194,7 +193,6 @@ export default function PopularTopics() {
                   <Card
                     className={`group relative border border-white/5 bg-card/40 backdrop-blur-md shadow-xl transition-all duration-300 hover:shadow-primary/5 ${topic.border} overflow-hidden`}
                   >
-                    {/* Hover Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
 
                     <CardContent className="p-8 relative z-10">
@@ -224,7 +222,6 @@ export default function PopularTopics() {
                             </span>
                           </div>
 
-                          {/* Progress Bar with Motion */}
                           <div className="h-1.5 w-full bg-muted/50 rounded-full overflow-hidden">
                             <motion.div
                               initial={{ width: 0 }}
