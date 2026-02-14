@@ -136,7 +136,7 @@ import Link from "next/link";
 
 export default function CTA() {
   return (
-    <section className="py-20 bg-background relative overflow-hidden">
+    <section className="py-20 dark:bg-background relative overflow-hidden">
       {/* Background Subtle Glow - Reduced Size */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[200px] bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
 

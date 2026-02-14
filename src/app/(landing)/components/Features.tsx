@@ -145,7 +145,7 @@ const features = [
 
 export default function Features() {
   return (
-    <section className="py-24 bg-[#030712] relative overflow-hidden">
+    <section className="py-24 dark:bg-[#030712] relative overflow-hidden">
       {/* Background Decorative Element */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-border to-transparent" />
 
