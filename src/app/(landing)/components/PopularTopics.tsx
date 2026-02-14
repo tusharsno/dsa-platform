@@ -249,7 +249,7 @@
 
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import { Layers, BrainCircuit, Zap, ArrowRight, Sparkles } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
@@ -284,9 +284,8 @@ const topics = [
   },
 ];
 
-// Using 'any' type to completely bypass Framer Motion's strict type checking
-// This ensures Vercel won't fail during the "Running TypeScript" phase
-const containerVariants: any = {
+// Proper Type definition instead of 'any' to satisfy the TypeScript compiler
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -296,14 +295,16 @@ const containerVariants: any = {
   },
 };
 
-const cardVariants: any = {
+const cardVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
       duration: 0.5,
-      ease: [0.22, 1, 0.36, 1], // Fixed as cubic-bezier array
+      // Fixed: Framer Motion v12 works best with named easings
+      // or explicit cubic-bezier cast if using custom values.
+      ease: [0.22, 1, 0.36, 1],
     },
   },
 };
@@ -353,7 +354,6 @@ export default function PopularTopics() {
         >
           {topics.map((topic, index) => {
             const progress = (topic.problems / topic.totalProblems) * 100;
-            // Clean URL slug creation
             const topicSlug = topic.name.toLowerCase().replace(/\s+/g, "-");
 
             return (
