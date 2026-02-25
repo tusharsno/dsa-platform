@@ -24,6 +24,7 @@ import Hero from "./components/Hero";
 import PopularTopics from "./components/PopularTopics";
 import { syncUser } from "@/lib/auth"; // Step 1: syncUser import kora
 import Process from "./components/Process";
+import CreatorSection from "@/components/features/CreatorSection";
 
 export default async function LandingPage() {
   // Step 2: syncUser() call kora
@@ -37,6 +38,7 @@ export default async function LandingPage() {
       <Features />
       <PopularTopics />
       <Process />
+      <CreatorSection />
       <CTA />
     </main>
   );
