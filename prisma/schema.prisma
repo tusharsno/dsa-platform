@@ -22,6 +22,10 @@ model User {
   name      String?
   imageUrl  String?
   points    Int      @default(0) // প্রবলেম সলভ করলে পয়েন্ট বাড়বে
+
+  streak   Int      @default(0) // ধারাবাহিক সলভিং স্ট্রিক
+  lastSolvedAt DateTime? // শেষবার কখন প্রবলেম সলভ করেছিল
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
@@ -49,7 +53,12 @@ model Solution {
   problemId String
   code      String   @db.Text
   language  String   @default("javascript")
+
   status    String   // Passed, Failed
+
+  executionTime Float? // মিলিসেকেন্ডে এক্সিকিউশন টাইম
+  memoryUsage   Float? // মেগাবাইটে মেমরি ইউসেজ
+  
   createdAt DateTime @default(now())
 
   user      User     @relation(fields: [userId], references: [id])
