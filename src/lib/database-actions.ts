@@ -23,6 +23,69 @@ export async function getAllTopics() {
   }
 }
 
+export async function getPopularTopicsWithProgress() {
+  try {
+    const { userId: clerkId } = await auth();
+
+    // Get top 3 topics by problem count
+    const topics = await db.topic.findMany({
+      orderBy: { order: "asc" },
+      take: 3,
+      include: {
+        _count: {
+          select: { problems: true },
+        },
+      },
+    });
+
+    // If user is logged in, calculate their progress
+    if (clerkId) {
+      const user = await db.user.findUnique({
+        where: { clerkId },
+        include: {
+          solutions: {
+            where: { status: "Passed" },
+            select: { 
+              problemId: true,
+              problem: {
+                select: { topicId: true },
+              },
+            },
+          },
+        },
+      });
+
+      return topics.map((topic) => {
+        const solvedCount = user?.solutions.filter(
+          (s) => s.problem.topicId === topic.id
+        ).length || 0;
+
+        return {
+          id: topic.id,
+          name: topic.name,
+          slug: topic.slug,
+          icon: topic.icon,
+          totalProblems: topic._count.problems,
+          solvedProblems: solvedCount,
+        };
+      });
+    }
+
+    // If not logged in, return topics with 0 progress
+    return topics.map((topic) => ({
+      id: topic.id,
+      name: topic.name,
+      slug: topic.slug,
+      icon: topic.icon,
+      totalProblems: topic._count.problems,
+      solvedProblems: 0,
+    }));
+  } catch (error) {
+    console.error("Error fetching popular topics:", error);
+    return [];
+  }
+}
+
 export async function getTopicBySlug(slug: string) {
   try {
     return await db.topic.findUnique({

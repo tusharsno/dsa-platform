@@ -337,172 +337,22 @@
 //   );
 // }
 
-"use client";
+import { getPopularTopicsWithProgress } from "@/lib/database-actions";
+import PopularTopicsClient from "./PopularTopicsClient";
 
-import { motion, Variants } from "framer-motion";
-import { Layers, BrainCircuit, Zap, ArrowRight, Target } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import Link from "next/link";
+export default async function PopularTopics() {
+  const topics = await getPopularTopicsWithProgress();
 
-const topics = [
-  {
-    name: "Arrays",
-    problems: 2,
-    totalProblems: 10,
-    icon: Layers,
-    color: "from-blue-500 to-cyan-400",
-    beamColor: "via-blue-500",
-    textShadow: "shadow-blue-500/20",
-  },
-  {
-    name: "Dynamic Programming",
-    problems: 1,
-    totalProblems: 15,
-    icon: BrainCircuit,
-    color: "from-purple-500 to-pink-500",
-    beamColor: "via-purple-500",
-    textShadow: "shadow-purple-500/20",
-  },
-  {
-    name: "Greedy",
-    problems: 0,
-    totalProblems: 8,
-    icon: Zap,
-    color: "from-yellow-500 to-orange-400",
-    beamColor: "via-yellow-500",
-    textShadow: "shadow-yellow-500/20",
-  },
-];
+  if (topics.length === 0) {
+    return null;
+  }
 
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.15 },
-  },
-};
-
-const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
-  },
-};
-
-export default function PopularTopics() {
   return (
     <section className="py-24 relative overflow-hidden bg-background">
-      {/* Background Glow to match Process section */}
       <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[120px] -z-10" />
 
       <div className="container px-6 mx-auto max-w-7xl">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-          >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/20 bg-primary/10 text-primary text-[10px] font-bold tracking-[0.2em] uppercase mb-4">
-              <Target className="w-3 h-3" />
-              Learning Path
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground italic uppercase">
-              Popular{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 not-italic uppercase">
-                Topics
-              </span>
-            </h2>
-          </motion.div>
-
-          <Link
-            href="/topics"
-            className="group flex items-center gap-3 text-xs font-bold tracking-widest uppercase text-muted-foreground hover:text-primary transition-all underline-offset-8 hover:underline"
-          >
-            Explore All Modules
-            <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </div>
-
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
-        >
-          {topics.map((topic, index) => {
-            const progress = (topic.problems / topic.totalProblems) * 100;
-            const topicSlug = topic.name.toLowerCase().replace(/\s+/g, "-");
-
-            return (
-              <motion.div
-                key={index}
-                variants={cardVariants}
-                className="group relative"
-              >
-                <Link href={`/topics/${topicSlug}`}>
-                  <div className="h-full p-8 rounded-2xl border border-white/[0.08] bg-card/50 backdrop-blur-sm hover:border-white/20 hover:bg-card/80 transition-all duration-500 relative overflow-hidden">
-                    {/* Icon Container with Glow (Unified Style) */}
-                    <div className="flex items-start justify-between mb-10">
-                      <div
-                        className={`relative w-14 h-14 rounded-xl flex items-center justify-center bg-gradient-to-br ${topic.color} p-[1px]`}
-                      >
-                        <div className="w-full h-full rounded-[11px] bg-background flex items-center justify-center">
-                          <topic.icon className="w-7 h-7 text-white group-hover:scale-110 transition-transform duration-500" />
-                        </div>
-                        <div
-                          className={`absolute inset-0 blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-500 bg-gradient-to-br ${topic.color}`}
-                        />
-                      </div>
-
-                      <div className="text-[10px] font-bold text-muted-foreground/30 tracking-widest uppercase italic">
-                        {topic.problems > 0 ? "Active" : "New"}
-                      </div>
-                    </div>
-
-                    {/* Content Section */}
-                    <div className="space-y-6 relative z-10">
-                      <h3 className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors italic uppercase tracking-tight">
-                        {topic.name}
-                      </h3>
-
-                      <div className="space-y-3">
-                        <div className="flex justify-between text-[11px] font-mono uppercase tracking-tighter">
-                          <span className="text-muted-foreground/60">
-                            Progress
-                          </span>
-                          <span className="text-foreground font-bold">
-                            {Math.round(progress)}%
-                          </span>
-                        </div>
-
-                        <div className="h-[4px] w-full bg-white/5 rounded-full overflow-hidden relative">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            whileInView={{ width: `${progress}%` }}
-                            transition={{ duration: 1, ease: "easeOut" }}
-                            className={`absolute h-full rounded-full bg-gradient-to-r ${topic.color}`}
-                          />
-                        </div>
-                        <p className="text-[10px] text-muted-foreground/40 font-medium">
-                          {topic.problems} / {topic.totalProblems} PROBLEMS
-                          SOLVED
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Bottom Decorative Beam (Unified Style) */}
-                    <div
-                      className={`absolute bottom-0 left-0 w-full h-[2px] scale-x-0 group-hover:scale-x-100 transition-transform duration-500 bg-gradient-to-r from-transparent ${topic.beamColor} to-transparent`}
-                    />
-                  </div>
-                </Link>
-              </motion.div>
-            );
-          })}
-        </motion.div>
+        <PopularTopicsClient topics={topics} />
       </div>
     </section>
   );
