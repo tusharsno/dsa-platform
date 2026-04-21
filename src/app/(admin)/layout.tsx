@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LayoutDashboard, Database, Settings, LogOut, Code2, Users, ArrowLeft, Shield } from "lucide-react";
+import { LayoutDashboard, Database, Settings, LogOut, Users, ArrowLeft, Shield, Activity } from "lucide-react";
 import { useClerk } from "@clerk/nextjs";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -36,6 +36,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </Link>
           <Link href="/admin/users" className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted font-medium transition-colors">
             <Users size={20} /> Manage Users
+          </Link>
+          <Link href="/admin/roles" className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted font-medium transition-colors">
+            <Shield size={20} /> Roles & Permissions
+          </Link>
+          <Link href="/admin/logs" className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted font-medium transition-colors">
+            <Activity size={20} /> Activity Logs
           </Link>
           <Link href="/admin/settings" className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted font-medium transition-colors text-muted-foreground">
             <Settings size={20} /> Settings

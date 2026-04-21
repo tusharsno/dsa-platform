@@ -13,7 +13,7 @@ export async function isAdmin() {
       select: { role: true },
     });
 
-    return user?.role === "admin";
+    return user?.role === "admin" || user?.role === "super_admin" || user?.role === "moderator";
   } catch (error) {
     console.error("Error checking admin status:", error);
     return false;

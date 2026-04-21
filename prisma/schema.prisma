@@ -16,7 +16,8 @@ model User {
   email        String   @unique
   name         String?
   imageUrl     String?
-  role         String   @default("user") // user, admin
+  role         String   @default("user") // user, moderator, admin, super_admin
+  permissions  String[] @default([]) // Array of permission strings
   points       Int      @default(0)
   streak       Int      @default(0)
   lastSolvedAt DateTime?
@@ -28,6 +29,30 @@ model User {
   discussions  Discussion[]
   replies      Reply[]
   bookmarks    Bookmark[]
+  activityLogs ActivityLog[] @relation("UserActions")
+  targetLogs   ActivityLog[] @relation("TargetUser")
+}
+
+// ১১. Activity Logs (Audit Trail)
+model ActivityLog {
+  id          String   @id @default(uuid())
+  userId      String   // Who performed the action
+  action      String   // CREATE, UPDATE, DELETE, PROMOTE, etc.
+  resource    String   // Problem, User, Topic, etc.
+  resourceId  String?  // ID of the affected resource
+  targetUserId String? // For user management actions
+  metadata    String?  @db.Text // JSON with additional details
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+  
+  user       User  @relation("UserActions", fields: [userId], references: [id], onDelete: Cascade)
+  targetUser User? @relation("TargetUser", fields: [targetUserId], references: [id], onDelete: SetNull)
+  
+  @@index([userId])
+  @@index([action])
+  @@index([resource])
+  @@index([createdAt])
 }
 
 // ২. DSA Topics (Array, DP, Graph etc.)
