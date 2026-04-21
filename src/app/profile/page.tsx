@@ -178,9 +178,9 @@ import {
   Code2,
   Star,
   Target,
-  ArrowUpRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ActivityGrid } from "@/components/dashboard/ActivityGrid";
 
 export default async function ProfilePage() {
   const user = await currentUser();
@@ -215,6 +215,11 @@ export default async function ProfilePage() {
   const easySolved = solved.filter((s) => s.problem.difficulty === "Easy").length;
   const mediumSolved = solved.filter((s) => s.problem.difficulty === "Medium").length;
   const hardSolved = solved.filter((s) => s.problem.difficulty === "Hard").length;
+
+  // Activity data for heatmap
+  const activityData = dbUser.solutions.map((s) => ({
+    createdAt: s.createdAt,
+  }));
 
   return (
     <div className="fixed inset-0 bg-background text-foreground overflow-y-auto">
@@ -317,23 +322,13 @@ export default async function ProfilePage() {
         {/* Activity & Rank */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 bg-card border border-border rounded-[2rem] p-8">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-between mb-6">
               <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
                 <Code2 className="h-4 w-4 text-primary" /> Solving Activity
               </h3>
-              <div className="text-[10px] text-primary font-bold uppercase flex items-center gap-1 cursor-pointer">
-                Full History <ArrowUpRight className="h-3 w-3" />
-              </div>
             </div>
 
-            <div className="h-48 w-full bg-muted/30 rounded-2xl border border-border border-dashed flex flex-col items-center justify-center">
-              <p className="text-muted-foreground text-sm font-medium">
-                No activity yet this year.
-              </p>
-              <p className="text-muted-foreground/60 text-xs">
-                Your progress heatmap will appear here.
-              </p>
-            </div>
+            <ActivityGrid data={activityData} />
           </div>
 
           <div className="bg-card border border-border rounded-[2rem] p-8 flex flex-col items-center justify-center text-center">
