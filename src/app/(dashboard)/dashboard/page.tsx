@@ -5,7 +5,7 @@ import {
   getRecentSubmissions,
 } from "@/lib/actions";
 import { StatsCard } from "@/components/dashboard/StatsCard";
-import { ActivityGrid } from "@/components/dashboard/ActivityGrid";
+import { ActivityPreview } from "@/components/dashboard/ActivityPreview";
 import { RecentSubmissions } from "@/components/dashboard/RecentSubmissions";
 import { CheckCircle, Flame, Target, Bookmark } from "lucide-react";
 import Link from "next/link";
@@ -73,7 +73,13 @@ export default async function DashboardPage() {
         {/* Left Column: Heatmap & Insights (Spans 2 columns) */}
         <div className="lg:col-span-2 space-y-6">
           <div className="p-6 bg-zinc-900/30 border border-white/5 rounded-xl">
-            <ActivityGrid data={activityData} />
+            <ActivityPreview data={activityData} />
+            <Link 
+              href="/profile" 
+              className="mt-4 text-xs text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-1 font-medium"
+            >
+              View full history →
+            </Link>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">

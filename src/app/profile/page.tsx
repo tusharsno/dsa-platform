@@ -181,6 +181,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ActivityGrid } from "@/components/dashboard/ActivityGrid";
+import { getUserRank } from "@/lib/rank-actions";
 
 export default async function ProfilePage() {
   const user = await currentUser();
@@ -220,6 +221,9 @@ export default async function ProfilePage() {
   const activityData = dbUser.solutions.map((s) => ({
     createdAt: s.createdAt,
   }));
+
+  // Calculate user rank
+  const userRank = await getUserRank(dbUser.id);
 
   return (
     <div className="fixed inset-0 bg-background text-foreground overflow-y-auto">
@@ -313,7 +317,7 @@ export default async function ProfilePage() {
           />
           <StatBox
             label="Global Rank"
-            value="Coming Soon"
+            value={`#${userRank}`}
             icon={Trophy}
             color="text-purple-500"
           />
@@ -339,10 +343,10 @@ export default async function ProfilePage() {
               <Trophy className="h-10 w-10 text-muted-foreground" />
             </div>
             <p className="text-4xl font-black text-foreground tracking-tighter">
-              #0
+              #{userRank}
             </p>
             <p className="text-muted-foreground text-[11px] mt-2">
-              Solve more to climb the leaderboard
+              {userRank === 1 ? "🏆 You're #1!" : "Solve more to climb the leaderboard"}
             </p>
           </div>
         </div>
