@@ -25,7 +25,7 @@ export function RecentSubmissions({ submissions }: { submissions: any[] }) {
               </div>
               <span
                 className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
-                  sub.status === "Accepted"
+                  sub.status === "Passed"
                     ? "bg-emerald-500/10 text-emerald-500"
                     : "bg-red-500/10 text-red-500"
                 }`}

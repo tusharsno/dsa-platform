@@ -12,8 +12,8 @@ import {
   Zap,
   Hash,
   LogIn,
-  LayoutDashboard,
-  TrendingUp,
+  Bookmark,
+  MessageSquare,
 } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 import { Button } from "@/components/ui/button";
@@ -71,6 +71,8 @@ export default function Navbar() {
   const navLinks = [
     { name: "Topics", href: "/topics", icon: BookOpen },
     { name: "Problems", href: "/problems", icon: Code2 },
+    { name: "Discussions", href: "/discussions", icon: MessageSquare },
+    { name: "Bookmarks", href: "/bookmarks", icon: Bookmark },
     { name: "Roadmap", href: "/roadmap", icon: Zap },
   ];
 

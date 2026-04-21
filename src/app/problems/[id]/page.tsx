@@ -1,23 +1,16 @@
-import { allProblems } from "@/data/problems/index";
+import { getProblemBySlug } from "@/lib/database-actions";
 import { notFound } from "next/navigation";
 import Workspace from "@/components/Workspace/Workspace";
 import Link from "next/link";
 import { ChevronLeft, Home } from "lucide-react";
-
-export async function generateStaticParams() {
-  return allProblems.map((problem) => ({
-    id: problem.id,
-  }));
-}
 
 export default async function ProblemPage({
   params,
 }: {
   params: { id: string };
 }) {
-  // Next.js 15+ এ params await করতে হয়
   const { id } = await params;
-  const problem = allProblems.find((p) => p.id === id);
+  const problem = await getProblemBySlug(id);
 
   if (!problem) {
     return notFound();
@@ -55,7 +48,6 @@ export default async function ProblemPage({
       </nav>
 
       <main className="flex-1 overflow-hidden">
-        {/* আমরা পুরো problem অবজেক্টটি পাস করছি */}
         <Workspace problem={problem} />
       </main>
     </div>

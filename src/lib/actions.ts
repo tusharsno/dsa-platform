@@ -3,21 +3,26 @@
 import db from "./db";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import { syncUser } from "./auth";
 
 // ১. ড্যাশবোর্ডের জন্য ইউজারের ডাটা ফেচ করা
 export async function getUserDashboardData() {
   const { userId: clerkId } = await auth();
 
-  if (!clerkId) {
-    throw new Error("Unauthorized");
-  }
+  if (!clerkId) return null;
 
   try {
+    // user DB তে না থাকলে create করো
+    await syncUser();
+
     const user = await db.user.findUnique({
       where: { clerkId },
       include: {
         _count: {
-          select: { solvedProblems: true }, // এখানে solvedProblems মানে Solution মডেলের কাউন্ট
+          select: { 
+            solutions: true,
+            bookmarks: true,
+          },
         },
       },
     });
@@ -27,7 +32,8 @@ export async function getUserDashboardData() {
     return {
       name: user.name,
       points: user.points,
-      totalSolved: user._count.solvedProblems,
+      totalSolved: user._count.solutions,
+      totalBookmarks: user._count.bookmarks,
       streak: user.streak,
     };
   } catch (error) {
@@ -55,14 +61,10 @@ export const saveSolution = async (
   // এবং 'upsert' এর জন্য আমরা 'id' ব্যবহার করছি
   return await db.solution.upsert({
     where: {
-      id: `${user.id}-${problemId}`,
+      userId_problemId: { userId: user.id, problemId },
     },
-    update: {
-      code,
-      status,
-    },
+    update: { code, status },
     create: {
-      id: `${user.id}-${problemId}`,
       userId: user.id,
       problemId,
       code,
@@ -86,12 +88,12 @@ export async function createProblem(formData: FormData) {
 // ৪. গত ১ বছরের অ্যাক্টিভিটি ডাটা নিয়ে আসা
 export async function getActivityData() {
   const { userId: clerkId } = await auth();
-  if (!clerkId) throw new Error("Unauthorized");
+  if (!clerkId) return [];
 
   const user = await db.user.findUnique({
     where: { clerkId },
     include: {
-      solvedProblems: {
+      solutions: {
         // এটি আসলে Solution মডেলের লিস্ট
         select: { createdAt: true },
         where: {
@@ -103,18 +105,18 @@ export async function getActivityData() {
     },
   });
 
-  return user?.solvedProblems || [];
+  return user?.solutions || [];
 }
 
 // ৫. শেষ ৫টি সাবমিশন ডাটা নিয়ে আসা
 export async function getRecentSubmissions() {
   const { userId: clerkId } = await auth();
-  if (!clerkId) throw new Error("Unauthorized");
+  if (!clerkId) return [];
 
   const user = await db.user.findUnique({
     where: { clerkId },
     include: {
-      solvedProblems: {
+      solutions: {
         take: 5,
         orderBy: { createdAt: "desc" },
         include: {
@@ -126,7 +128,7 @@ export async function getRecentSubmissions() {
     },
   });
 
-  return user?.solvedProblems || [];
+  return user?.solutions || [];
 }
 
 // --- টার্গেট ১: সাবমিশন ব্রিজ (FIXED) ---
@@ -150,18 +152,14 @@ export async function submitSolution(
   // তোমার schema অনুযায়ী মডেলের নাম db.solution
   await db.solution.upsert({
     where: {
-      id: `${user.id}-${problemId}`,
+      userId_problemId: { userId: user.id, problemId },
     },
-    update: {
-      status: status,
-      code: code,
-    },
+    update: { status, code },
     create: {
-      id: `${user.id}-${problemId}`,
       userId: user.id,
-      problemId: problemId,
-      status: status,
-      code: code,
+      problemId,
+      status,
+      code,
       language: "javascript",
     },
   });

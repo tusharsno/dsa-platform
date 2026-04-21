@@ -169,6 +169,7 @@
 import db from "@/lib/db";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import {
   Mail,
   Calendar,
@@ -187,39 +188,45 @@ export default async function ProfilePage() {
 
   if (!clerkId || !user) redirect("/sign-in");
 
-  const dbUser = await db.user.findUnique({
+  // User sync করা - না থাকলে create করবে
+  let dbUser = await db.user.findUnique({
     where: { clerkId: clerkId },
-    include: { solvedProblems: { include: { problem: true } } },
+    include: { solutions: { include: { problem: true } } },
   });
 
-  if (!dbUser) return null;
+  if (!dbUser) {
+    // User create করা
+    dbUser = await db.user.create({
+      data: {
+        clerkId: clerkId,
+        name: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || "Anonymous",
+        email: user.emailAddresses[0].emailAddress,
+        imageUrl: user.imageUrl,
+      },
+      include: { solutions: { include: { problem: true } } },
+    });
+  }
 
   // সলভ করা প্রবলেমগুলো ফিল্টার করা
-  const solved = dbUser.solvedProblems.filter((s) => s.status === "Passed");
+  const solved = dbUser.solutions.filter((s) => s.status === "Passed");
   const totalSolved = solved.length;
 
   // ক্যাটাগরি অনুযায়ী আলাদা কাউন্ট (any টাইপ দিয়ে লাল দাগ ফিক্স করা হয়েছে)
-  const easySolved = solved.filter(
-    (s: any) => s.problem.difficulty === "Easy",
-  ).length;
-  const mediumSolved = solved.filter(
-    (s: any) => s.problem.difficulty === "Medium",
-  ).length;
-  const hardSolved = solved.filter(
-    (s: any) => s.problem.difficulty === "Hard",
-  ).length;
+  const easySolved = solved.filter((s) => s.problem.difficulty === "Easy").length;
+  const mediumSolved = solved.filter((s) => s.problem.difficulty === "Medium").length;
+  const hardSolved = solved.filter((s) => s.problem.difficulty === "Hard").length;
 
   return (
-    <div className="fixed inset-0 bg-black text-slate-300 overflow-y-auto">
+    <div className="fixed inset-0 bg-background text-foreground overflow-y-auto">
       {/* Background Grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:35px_35px] pointer-events-none"></div>
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border))_1px,transparent_1px)] bg-[size:35px_35px] pointer-events-none opacity-30"></div>
 
       <div className="relative max-w-6xl mx-auto px-6 pt-32 pb-20 z-10">
         {/* Profile Card */}
-        <div className="bg-[#0a0a0a]/60 border border-white/[0.05] rounded-[2rem] p-10 mb-10 backdrop-blur-md">
+        <div className="bg-card border border-border rounded-[2rem] p-10 mb-10 backdrop-blur-md">
           <div className="flex flex-col md:flex-row items-center gap-10">
             {/* Fully Rounded Profile Pic with Glow */}
-            <div className="h-32 w-32 rounded-full border border-white/10 p-1 bg-gradient-to-b from-white/10 to-transparent shadow-[0_0_30px_rgba(255,255,255,0.05)]">
+            <div className="h-32 w-32 rounded-full border border-border p-1 bg-gradient-to-b from-primary/10 to-transparent shadow-[0_0_30px_hsl(var(--primary)/0.1)]">
               <img
                 src={user.imageUrl}
                 className="h-full w-full rounded-full object-cover"
@@ -229,29 +236,31 @@ export default async function ProfilePage() {
 
             <div className="flex-1 text-center md:text-left space-y-3">
               <div className="flex items-center justify-center md:justify-start gap-4">
-                <h1 className="text-4xl font-bold text-white tracking-tight">
+                <h1 className="text-4xl font-bold text-foreground tracking-tight">
                   {dbUser.name}
                 </h1>
-                <span className="text-[10px] bg-blue-500/10 text-blue-400 px-2.5 py-1 rounded-full border border-blue-500/20 font-black tracking-widest uppercase">
+                <span className="text-[10px] bg-primary/10 text-primary px-2.5 py-1 rounded-full border border-primary/20 font-black tracking-widest uppercase">
                   PRO
                 </span>
               </div>
 
               <div className="flex flex-wrap justify-center md:justify-start gap-6 pt-1">
-                <div className="flex items-center gap-2 text-slate-500 text-sm font-medium">
+                <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
                   <Mail className="h-4 w-4" /> {dbUser.email}
                 </div>
-                <div className="flex items-center gap-2 text-slate-500 text-sm font-medium">
-                  <Calendar className="h-4 w-4" /> Joined Feb 2026
+                <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
+                  <Calendar className="h-4 w-4" /> Joined {new Date(dbUser.createdAt).toLocaleDateString()}
                 </div>
               </div>
             </div>
 
             {/* Shimmering Edit Button */}
-            <Button className="relative group overflow-hidden bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl px-10 h-12 shadow-[0_0_20px_rgba(37,99,235,0.15)] border border-white/10 transition-all active:scale-95">
-              <div className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-[30deg] -translate-x-full group-hover:animate-shimmer"></div>
-              <span className="relative">Edit Profile</span>
-            </Button>
+            <Link href="/profile/edit">
+              <Button className="relative group overflow-hidden bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl px-10 h-12 shadow-[0_0_20px_hsl(var(--primary)/0.2)] border border-border transition-all active:scale-95">
+                <div className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-[30deg] -translate-x-full group-hover:animate-shimmer"></div>
+                <span className="relative">Edit Profile</span>
+              </Button>
+            </Link>
           </div>
         </div>
 
@@ -261,7 +270,7 @@ export default async function ProfilePage() {
             label="Total Solved"
             value={totalSolved}
             icon={Target}
-            color="text-white"
+            color="text-foreground"
           />
           <StatBox
             label="Easy"
@@ -295,7 +304,7 @@ export default async function ProfilePage() {
             label="Total Points"
             value={dbUser.points || 0}
             icon={Star}
-            color="text-blue-500"
+            color="text-primary"
           />
           <StatBox
             label="Global Rank"
@@ -307,37 +316,37 @@ export default async function ProfilePage() {
 
         {/* Activity & Rank */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-[#0a0a0a]/60 border border-white/[0.05] rounded-[2rem] p-8">
+          <div className="lg:col-span-2 bg-card border border-border rounded-[2rem] p-8">
             <div className="flex items-center justify-between mb-8">
-              <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500 flex items-center gap-2">
-                <Code2 className="h-4 w-4 text-blue-500" /> Solving Activity
+              <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
+                <Code2 className="h-4 w-4 text-primary" /> Solving Activity
               </h3>
-              <div className="text-[10px] text-blue-500 font-bold uppercase flex items-center gap-1 cursor-pointer">
+              <div className="text-[10px] text-primary font-bold uppercase flex items-center gap-1 cursor-pointer">
                 Full History <ArrowUpRight className="h-3 w-3" />
               </div>
             </div>
 
-            <div className="h-48 w-full bg-black/40 rounded-2xl border border-white/[0.03] border-dashed flex flex-col items-center justify-center">
-              <p className="text-slate-500 text-sm font-medium">
+            <div className="h-48 w-full bg-muted/30 rounded-2xl border border-border border-dashed flex flex-col items-center justify-center">
+              <p className="text-muted-foreground text-sm font-medium">
                 No activity yet this year.
               </p>
-              <p className="text-slate-700 text-xs">
+              <p className="text-muted-foreground/60 text-xs">
                 Your progress heatmap will appear here.
               </p>
             </div>
           </div>
 
-          <div className="bg-[#0a0a0a]/60 border border-white/[0.05] rounded-[2rem] p-8 flex flex-col items-center justify-center text-center">
-            <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500 mb-8 w-full text-left">
+          <div className="bg-card border border-border rounded-[2rem] p-8 flex flex-col items-center justify-center text-center">
+            <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground mb-8 w-full text-left">
               My Rank
             </h3>
-            <div className="h-24 w-24 rounded-full border border-white/5 flex items-center justify-center bg-white/[0.01] mb-4">
-              <Trophy className="h-10 w-10 text-slate-800" />
+            <div className="h-24 w-24 rounded-full border border-border flex items-center justify-center bg-muted/30 mb-4">
+              <Trophy className="h-10 w-10 text-muted-foreground" />
             </div>
-            <p className="text-4xl font-black text-white tracking-tighter">
+            <p className="text-4xl font-black text-foreground tracking-tighter">
               #0
             </p>
-            <p className="text-slate-600 text-[11px] mt-2">
+            <p className="text-muted-foreground text-[11px] mt-2">
               Solve more to climb the leaderboard
             </p>
           </div>
@@ -349,16 +358,16 @@ export default async function ProfilePage() {
 
 function StatBox({ label, value, icon: Icon, color }: any) {
   return (
-    <div className="bg-[#0a0a0a]/60 border border-white/[0.05] rounded-2xl p-6 transition-all hover:border-white/10 group">
+    <div className="bg-card border border-border rounded-2xl p-6 transition-all hover:border-primary/50 group">
       <div className="flex items-center gap-4">
-        <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.05]">
+        <div className="p-2.5 rounded-xl bg-muted border border-border">
           <Icon className={`h-5 w-5 ${color}`} />
         </div>
         <div>
-          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-0.5">
+          <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-0.5">
             {label}
           </p>
-          <p className="text-xl font-bold text-white tracking-tight">{value}</p>
+          <p className="text-xl font-bold text-foreground tracking-tight">{value}</p>
         </div>
       </div>
     </div>

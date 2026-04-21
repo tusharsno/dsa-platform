@@ -7,12 +7,11 @@ import {
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { ActivityGrid } from "@/components/dashboard/ActivityGrid";
 import { RecentSubmissions } from "@/components/dashboard/RecentSubmissions";
-import { CheckCircle, Flame, Target } from "lucide-react";
+import { CheckCircle, Flame, Target, Bookmark } from "lucide-react";
+import Link from "next/link";
 
 export default async function DashboardPage() {
   const userData = await getUserDashboardData();
-  const activityData = await getActivityData();
-  const recentSubmissions = await getRecentSubmissions();
 
   if (!userData) {
     return (
@@ -23,6 +22,9 @@ export default async function DashboardPage() {
       </div>
     );
   }
+
+  const activityData = await getActivityData();
+  const recentSubmissions = await getRecentSubmissions();
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto min-h-screen">
@@ -37,7 +39,7 @@ export default async function DashboardPage() {
       </header>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-4">
         <StatsCard
           title="Total Solved"
           value={userData.totalSolved}
@@ -56,6 +58,14 @@ export default async function DashboardPage() {
           icon={Target}
           description="Points earned from correct solutions"
         />
+        <Link href="/bookmarks">
+          <StatsCard
+            title="Bookmarks"
+            value={userData.totalBookmarks}
+            icon={Bookmark}
+            description="Problems saved for later"
+          />
+        </Link>
       </div>
 
       {/* Main Content Grid */}
@@ -72,8 +82,7 @@ export default async function DashboardPage() {
                 Recommended Topics
               </h3>
               <p className="text-zinc-500 text-xs leading-relaxed">
-                Focus on **Dynamic Programming** and **Graphs** to strengthen
-                your core skills.
+                Focus on Dynamic Programming and Graphs to strengthen your core skills.
               </p>
             </div>
             <div className="p-6 bg-zinc-900/30 border border-white/5 rounded-xl">

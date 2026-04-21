@@ -1,589 +1,261 @@
-// "use client";
-
-// import React, { useState } from "react";
-// import Confetti from "react-confetti";
-// import useWindowSize from "react-use/lib/useWindowSize";
-// import Editor, { loader } from "@monaco-editor/react"; // loader যোগ করা হয়েছে কাস্টম থিমের জন্য
-// import { useTheme } from "next-themes";
-// import {
-//   Send,
-//   CheckCircle2,
-//   ChevronLeft,
-//   Play,
-//   Terminal,
-//   History,
-//   Settings2,
-// } from "lucide-react";
-// import Link from "next/link";
-// import { problemJudges } from "@/lib/judge";
-// import { Problem } from "@/types";
-
-// export default function Workspace({ problem }: { problem: Problem }) {
-//   const [isSubmitting, setIsSubmitting] = useState(false);
-//   const [showSuccess, setShowSuccess] = useState(false);
-//   const [userCode, setUserCode] = useState(problem.starterCode);
-//   const [consoleOutput, setConsoleOutput] = useState<string>(
-//     "Run your code to see results...",
-//   );
-//   const [customInput, setCustomInput] = useState<string>("");
-
-//   const { theme } = useTheme();
-//   const { width, height } = useWindowSize();
-
-//   // --- কাস্টম এডিটর থিম কনফিগারেশন ---
-//   const handleEditorWillMount = (monaco: any) => {
-//     monaco.editor.defineTheme("dsa-dark-theme", {
-//       base: "vs-dark",
-//       inherit: true,
-//       rules: [],
-//       colors: {
-//         "editor.background": "#030712", // তোমার ল্যান্ডিং পেজের ডার্ক কালার
-//         "editor.lineHighlightBackground": "#1e293b50",
-//         "editorLineNumber.foreground": "#4b5563",
-//         "editorLineNumber.activeForeground": "#3b82f6",
-//         "editorIndentGuide.background": "#1e293b",
-//         "editor.selectionBackground": "#3b82f630",
-//       },
-//     });
-//   };
-
-//   // --- বাকি লজিক (Run/Submit) অপরিবর্তিত রাখা হয়েছে ---
-//   const handleRun = () => {
-//     try {
-//       const cleanedCode = userCode.trim().endsWith(";")
-//         ? userCode.trim().slice(0, -1)
-//         : userCode;
-//       const userFunction = new Function(`return (${cleanedCode})`)();
-
-//       let result;
-//       if (customInput.trim()) {
-//         const parsedInput = JSON.parse(customInput);
-//         result = Array.isArray(parsedInput)
-//           ? userFunction(...parsedInput)
-//           : userFunction(parsedInput);
-//         setConsoleOutput(`Custom Run Output: ${JSON.stringify(result)}`);
-//       } else {
-//         const judge = problemJudges[problem.id];
-//         if (!judge) return setConsoleOutput("Error: Judge logic not found.");
-//         const judgeRes = judge(userFunction);
-//         setConsoleOutput(
-//           judgeRes.passed
-//             ? `Test Passed! \nOutput: ${JSON.stringify(judgeRes.actual)}`
-//             : `Wrong Answer! \nExpected: ${JSON.stringify(judgeRes.expected)} \nGot: ${JSON.stringify(judgeRes.actual)}`,
-//         );
-//       }
-//     } catch (error: any) {
-//       setConsoleOutput(`Error: ${error.message}`);
-//     }
-//   };
-
-//   const handleSubmit = async () => {
-//     if (!userCode || userCode.trim() === problem.starterCode.trim()) {
-//       alert("Please write your solution before submitting!");
-//       return;
-//     }
-//     setIsSubmitting(true);
-//     try {
-//       const cleanedCode = userCode.trim().endsWith(";")
-//         ? userCode.trim().slice(0, -1)
-//         : userCode;
-//       const userFunction = new Function(`return (${cleanedCode})`)();
-//       const judge = problemJudges[problem.id];
-//       if (!judge) throw new Error("Judge logic not found.");
-
-//       const result = judge(userFunction);
-//       if (result.passed) {
-//         setTimeout(() => {
-//           setIsSubmitting(false);
-//           setShowSuccess(true);
-//           setTimeout(() => setShowSuccess(false), 5000);
-//         }, 1000);
-//       } else {
-//         setIsSubmitting(false);
-//         alert(
-//           `Wrong Answer!\n\nExpected: ${JSON.stringify(result.expected)}\nGot: ${JSON.stringify(result.actual)}`,
-//         );
-//       }
-//     } catch (error: any) {
-//       setIsSubmitting(false);
-//       alert("Judging Error: " + error.message);
-//     }
-//   };
-
-//   return (
-//     // মূল ব্যাকগ্রাউন্ড কালার আপডেট করা হয়েছে (#030712)
-//     <div className="relative flex flex-col h-screen bg-white dark:bg-[#030712] text-slate-900 dark:text-gray-100 transition-colors duration-200">
-//       {showSuccess && (
-//         <Confetti
-//           width={width}
-//           height={height}
-//           numberOfPieces={300}
-//           recycle={false}
-//           gravity={0.2}
-//         />
-//       )}
-
-//       {/* Header কালার আপডেট করা হয়েছে (#0B1120) */}
-//       <header className="h-12 border-b border-slate-200 dark:border-white/5 flex items-center justify-between px-4 bg-slate-50 dark:bg-[#0B1120]/80 backdrop-blur-md">
-//         <div className="flex items-center gap-4">
-//           <Link
-//             href="/problems"
-//             className="p-1.5 hover:bg-slate-200 dark:hover:bg-white/5 rounded-lg transition-colors"
-//           >
-//             <ChevronLeft size={18} />
-//           </Link>
-//           <h2 className="text-sm font-semibold">{problem.title}</h2>
-//         </div>
-//         <div className="flex items-center gap-2">
-//           <button
-//             onClick={handleRun}
-//             className="flex items-center gap-2 px-3 py-1 text-xs font-medium bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded hover:opacity-80 transition-all"
-//           >
-//             <Play size={14} className="fill-current" /> Run
-//           </button>
-//           <button
-//             onClick={handleSubmit}
-//             disabled={isSubmitting}
-//             className="flex items-center gap-2 px-6 py-1 text-xs font-bold bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-slate-400 transition-all shadow-lg shadow-blue-500/20"
-//           >
-//             {isSubmitting ? (
-//               "Judging..."
-//             ) : (
-//               <>
-//                 <Send size={14} /> Submit
-//               </>
-//             )}
-//           </button>
-//         </div>
-//       </header>
-
-//       <div className="flex flex-1 overflow-hidden">
-//         {/* Left Panel: Problem Statement */}
-//         <div className="w-1/2 overflow-y-auto border-r border-slate-200 dark:border-white/5 p-6 bg-white dark:bg-[#030712]">
-//           <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-green-500/10 text-green-600 border border-green-500/20 mb-4 inline-block">
-//             {problem.difficulty}
-//           </span>
-//           <h1 className="text-2xl font-bold mb-4">{problem.title}</h1>
-//           <div className="text-sm space-y-4 text-slate-700 dark:text-gray-400">
-//             <p>{problem.problemStatement}</p>
-
-//             {problem.examples?.map((ex) => (
-//               <div key={ex.id} className="space-y-2">
-//                 <p className="font-bold text-slate-900 dark:text-gray-200">
-//                   Example {ex.id}:
-//                 </p>
-//                 <div className="bg-slate-100 dark:bg-[#0B1120]/50 p-3 rounded-lg border border-slate-200 dark:border-white/5 font-mono text-xs">
-//                   <p>
-//                     <span className="text-blue-500">Input:</span> {ex.inputText}
-//                   </p>
-//                   <p>
-//                     <span className="text-green-500">Output:</span>{" "}
-//                     {ex.outputText}
-//                   </p>
-//                   {ex.explanation && (
-//                     <p>
-//                       <span className="text-yellow-600 dark:text-yellow-500/80">
-//                         Explanation:
-//                       </span>{" "}
-//                       {ex.explanation}
-//                     </p>
-//                   )}
-//                 </div>
-//               </div>
-//             ))}
-
-//             <div className="bg-slate-100 dark:bg-[#0B1120]/30 p-4 rounded-lg border border-slate-200 dark:border-white/5 mt-6">
-//               <p className="text-[10px] font-bold uppercase text-slate-500 flex items-center gap-2 mb-2">
-//                 <Terminal size={12} /> Constraints
-//               </p>
-//               <p className="font-mono text-xs text-slate-600 dark:text-gray-500">
-//                 {problem.constraints}
-//               </p>
-//             </div>
-//           </div>
-//         </div>
-
-//         {/* Right Panel: Editor & Output */}
-//         <div className="w-1/2 flex flex-col bg-slate-50 dark:bg-[#030712]">
-//           <div className="flex-1 overflow-hidden">
-//             <Editor
-//               height="100%"
-//               defaultLanguage="javascript"
-//               value={userCode}
-//               // ডাইনামিক থিম হ্যান্ডলিং
-//               theme={theme === "dark" ? "dsa-dark-theme" : "light"}
-//               beforeMount={handleEditorWillMount}
-//               options={{
-//                 minimap: { enabled: false },
-//                 fontSize: 16,
-//                 automaticLayout: true,
-//                 padding: { top: 16 },
-//                 scrollBeyondLastLine: false,
-//                 fontFamily:
-//                   "JetBrains Mono, Menlo, Monaco, Courier New, monospace",
-//                 lineNumbersMinChars: 3,
-//                 glyphMargin: false,
-//               }}
-//               onChange={(value) => setUserCode(value || "")}
-//             />
-//           </div>
-
-//           {/* Testcase/Console Area */}
-//           <div className="h-64 border-t border-slate-300 dark:border-white/10 flex flex-col bg-white dark:bg-[#030712]">
-//             <div className="flex border-b border-slate-200 dark:border-white/10">
-//               <button className="px-4 py-2 text-[10px] font-bold border-b-2 border-blue-500 text-blue-500 bg-blue-500/5 transition-colors">
-//                 Testcase
-//               </button>
-//             </div>
-
-//             <div className="flex-1 p-3 flex gap-4 overflow-hidden bg-slate-50 dark:bg-[#030712]">
-//               <div className="flex-1 flex flex-col">
-//                 <p className="text-[10px] font-bold text-slate-400 mb-1 flex items-center gap-1">
-//                   <Settings2 size={10} /> Custom Input (JSON)
-//                 </p>
-//                 <textarea
-//                   value={customInput}
-//                   onChange={(e) => setCustomInput(e.target.value)}
-//                   placeholder="e.g."
-//                   className="flex-1 bg-white dark:bg-[#0B1120]/50 border border-slate-200 dark:border-white/10 rounded p-2 font-mono text-xs resize-none outline-none focus:border-blue-500 transition-all"
-//                 />
-//               </div>
-
-//               <div className="flex-1 flex flex-col">
-//                 <p className="text-[10px] font-bold text-slate-400 mb-1 flex items-center gap-1">
-//                   <History size={10} /> Console Output
-//                 </p>
-//                 <div
-//                   className={`flex-1 p-2 font-mono text-xs rounded border border-slate-200 dark:border-white/10 overflow-y-auto bg-white dark:bg-[#0B1120]/50 ${
-//                     consoleOutput.includes("Passed")
-//                       ? "text-green-500"
-//                       : "text-slate-400"
-//                   }`}
-//                 >
-//                   {consoleOutput}
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//       {/* Success Modal - কালার সামঞ্জস্য রাখা হয়েছে */}
-//       {showSuccess && (
-//         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-//           <div className="bg-white dark:bg-[#0B1120] p-8 rounded-2xl text-center shadow-2xl border border-blue-500/20 max-w-sm w-full animate-in zoom-in duration-300">
-//             <div className="w-16 h-16 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-//               <CheckCircle2 size={32} />
-//             </div>
-//             <h2 className="text-2xl font-bold mb-2 text-slate-900 dark:text-white">
-//               Accepted!
-//             </h2>
-//             <p className="text-slate-500 dark:text-gray-400 text-sm mb-6">
-//               Your code solved the problem correctly.
-//             </p>
-//             <button
-//               onClick={() => setShowSuccess(false)}
-//               className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-transform active:scale-95 shadow-lg shadow-blue-500/30"
-//             >
-//               Next Problem
-//             </button>
-//           </div>
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
-
 "use client";
 
-import React, { useState } from "react";
-import Confetti from "react-confetti";
-import useWindowSize from "react-use/lib/useWindowSize";
+import { useState } from "react";
 import Editor from "@monaco-editor/react";
 import { useTheme } from "next-themes";
-import {
-  Send,
-  CheckCircle2,
-  ChevronLeft,
-  Play,
-  Terminal,
-  History,
-  Settings2,
-} from "lucide-react";
-import Link from "next/link";
-import { problemJudges } from "@/lib/judge";
-import { Problem } from "@/types";
-import { submitSolution } from "@/lib/actions"; // আমাদের সার্ভার অ্যাকশন ইমপোর্ট করা হলো
+import { Play, Send, CheckCircle2, Bookmark } from "lucide-react";
+import Confetti from "react-confetti";
+import useWindowSize from "react-use/lib/useWindowSize";
+import { submitSolution, toggleBookmark } from "@/lib/database-actions";
+import { useRouter } from "next/navigation";
+
+interface Problem {
+  id: string;
+  title: string;
+  description: string;
+  difficulty: string;
+  hints: string[];
+  constraints: string | null;
+  starterCode: string | null;
+  isBookmarked?: boolean;
+  testCases: {
+    input: string;
+    output: string;
+    isHidden: boolean;
+  }[];
+}
 
 export default function Workspace({ problem }: { problem: Problem }) {
+  const [code, setCode] = useState(
+    problem.starterCode
+      ? JSON.parse(problem.starterCode).javascript
+      : "function solution() {\n  // Write your code here\n}"
+  );
+  const [output, setOutput] = useState("Run your code to see results...");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [userCode, setUserCode] = useState(problem.starterCode);
-  const [consoleOutput, setConsoleOutput] = useState<string>(
-    "Run your code to see results...",
-  );
-  const [customInput, setCustomInput] = useState<string>("");
+  const [isBookmarked, setIsBookmarked] = useState(problem.isBookmarked || false);
 
   const { theme } = useTheme();
   const { width, height } = useWindowSize();
+  const router = useRouter();
 
-  // --- কাস্টম এডিটর থিম কনফিগারেশন ---
-  const handleEditorWillMount = (monaco: any) => {
-    monaco.editor.defineTheme("dsa-dark-theme", {
-      base: "vs-dark",
-      inherit: true,
-      rules: [],
-      colors: {
-        "editor.background": "#030712",
-        "editor.lineHighlightBackground": "#1e293b50",
-        "editorLineNumber.foreground": "#4b5563",
-        "editorLineNumber.activeForeground": "#3b82f6",
-        "editorIndentGuide.background": "#1e293b",
-        "editor.selectionBackground": "#3b82f630",
-      },
-    });
+  const handleBookmark = async () => {
+    const result = await toggleBookmark(problem.id);
+    if (!result.error) {
+      setIsBookmarked(result.bookmarked!);
+      router.refresh();
+    }
   };
 
-  // --- Run লজিক ---
   const handleRun = () => {
     try {
-      const cleanedCode = userCode.trim().endsWith(";")
-        ? userCode.trim().slice(0, -1)
-        : userCode;
-      const userFunction = new Function(`return (${cleanedCode})`)();
+      const testCase = problem.testCases.find((tc) => !tc.isHidden);
+      if (!testCase) {
+        setOutput("No test cases available");
+        return;
+      }
 
-      let result;
-      if (customInput.trim()) {
-        const parsedInput = JSON.parse(customInput);
-        result = Array.isArray(parsedInput)
-          ? userFunction(...parsedInput)
-          : userFunction(parsedInput);
-        setConsoleOutput(`Custom Run Output: ${JSON.stringify(result)}`);
+      const input = JSON.parse(testCase.input);
+      const expected = JSON.parse(testCase.output);
+
+      const userFunction = new Function(`return (${code})`)();
+      const result = userFunction(...Object.values(input));
+
+      if (JSON.stringify(result) === JSON.stringify(expected)) {
+        setOutput(`✅ Test Passed!\nOutput: ${JSON.stringify(result)}`);
       } else {
-        const judge = problemJudges[problem.id];
-        if (!judge) return setConsoleOutput("Error: Judge logic not found.");
-        const judgeRes = judge(userFunction);
-        setConsoleOutput(
-          judgeRes.passed
-            ? `Test Passed! \nOutput: ${JSON.stringify(judgeRes.actual)}`
-            : `Wrong Answer! \nExpected: ${JSON.stringify(judgeRes.expected)} \nGot: ${JSON.stringify(judgeRes.actual)}`,
+        setOutput(
+          `❌ Wrong Answer\nExpected: ${JSON.stringify(expected)}\nGot: ${JSON.stringify(result)}`
         );
       }
     } catch (error: any) {
-      setConsoleOutput(`Error: ${error.message}`);
+      setOutput(`❌ Error: ${error.message}`);
     }
   };
 
-  // --- Submit লজিক (ডাটাবেজ কানেকশন সহ আপডেট করা হয়েছে) ---
   const handleSubmit = async () => {
-    if (!userCode || userCode.trim() === problem.starterCode.trim()) {
-      alert("Please write your solution before submitting!");
-      return;
-    }
-
     setIsSubmitting(true);
     try {
-      const cleanedCode = userCode.trim().endsWith(";")
-        ? userCode.trim().slice(0, -1)
-        : userCode;
+      let passedTests = 0;
+      const totalTests = problem.testCases.length;
 
-      const userFunction = new Function(`return (${cleanedCode})`)();
-      const judge = problemJudges[problem.id];
+      for (const testCase of problem.testCases) {
+        const input = JSON.parse(testCase.input);
+        const expected = JSON.parse(testCase.output);
 
-      if (!judge) throw new Error("Judge logic not found.");
+        const userFunction = new Function(`return (${code})`)();
+        const result = userFunction(...Object.values(input));
 
-      const result = judge(userFunction);
-
-      if (result.passed) {
-        // সঠিক উত্তর হলে ডাটাবেজে সেভ হবে
-        const dbRes = await submitSolution(problem.id, "Passed", userCode);
-
-        if (dbRes.success) {
-          setIsSubmitting(false);
-          setShowSuccess(true);
-          setConsoleOutput("Test Passed! Profile Updated Successfully.");
-          setTimeout(() => setShowSuccess(false), 5000);
+        if (JSON.stringify(result) === JSON.stringify(expected)) {
+          passedTests++;
         }
+      }
+
+      if (passedTests === totalTests) {
+        await submitSolution(problem.id, code, "javascript", "Passed");
+        setShowSuccess(true);
+        setOutput(`✅ All ${totalTests} tests passed!`);
+        setTimeout(() => setShowSuccess(false), 5000);
       } else {
-        setIsSubmitting(false);
-        setConsoleOutput(
-          `Wrong Answer! \nExpected: ${JSON.stringify(result.expected)} \nGot: ${JSON.stringify(result.actual)}`,
-        );
-        alert(
-          `Wrong Answer!\n\nExpected: ${JSON.stringify(result.expected)}\nGot: ${JSON.stringify(result.actual)}`,
+        setOutput(
+          `❌ ${passedTests}/${totalTests} tests passed. Keep trying!`
         );
       }
     } catch (error: any) {
+      setOutput(`❌ Error: ${error.message}`);
+    } finally {
       setIsSubmitting(false);
-      setConsoleOutput(`Judging Error: ${error.message}`);
-      alert("Judging Error: " + error.message);
     }
   };
 
   return (
-    <div className="relative flex flex-col h-screen bg-white dark:bg-[#030712] text-slate-900 dark:text-gray-100 transition-colors duration-200">
+    <div className="flex h-full">
       {showSuccess && (
-        <Confetti
-          width={width}
-          height={height}
-          numberOfPieces={300}
-          recycle={false}
-          gravity={0.2}
-        />
-      )}
-
-      <header className="h-12 border-b border-slate-200 dark:border-white/5 flex items-center justify-between px-4 bg-slate-50 dark:bg-[#0B1120]/80 backdrop-blur-md">
-        <div className="flex items-center gap-4">
-          <Link
-            href="/problems"
-            className="p-1.5 hover:bg-slate-200 dark:hover:bg-white/5 rounded-lg transition-colors"
-          >
-            <ChevronLeft size={18} />
-          </Link>
-          <h2 className="text-sm font-semibold">{problem.title}</h2>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleRun}
-            className="flex items-center gap-2 px-3 py-1 text-xs font-medium bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded hover:opacity-80 transition-all"
-          >
-            <Play size={14} className="fill-current" /> Run
-          </button>
-          <button
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            className="flex items-center gap-2 px-6 py-1 text-xs font-bold bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-slate-400 transition-all shadow-lg shadow-blue-500/20"
-          >
-            {isSubmitting ? (
-              "Judging..."
-            ) : (
-              <>
-                <Send size={14} /> Submit
-              </>
-            )}
-          </button>
-        </div>
-      </header>
-
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left Panel */}
-        <div className="w-1/2 overflow-y-auto border-r border-slate-200 dark:border-white/5 p-6 bg-white dark:bg-[#030712]">
-          <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-green-500/10 text-green-600 border border-green-500/20 mb-4 inline-block">
-            {problem.difficulty}
-          </span>
-          <h1 className="text-2xl font-bold mb-4">{problem.title}</h1>
-          <div className="text-sm space-y-4 text-slate-700 dark:text-gray-400">
-            <p>{problem.problemStatement}</p>
-            {problem.examples?.map((ex) => (
-              <div key={ex.id} className="space-y-2">
-                <p className="font-bold text-slate-900 dark:text-gray-200">
-                  Example {ex.id}:
-                </p>
-                <div className="bg-slate-100 dark:bg-[#0B1120]/50 p-3 rounded-lg border border-slate-200 dark:border-white/5 font-mono text-xs">
-                  <p>
-                    <span className="text-blue-500">Input:</span> {ex.inputText}
-                  </p>
-                  <p>
-                    <span className="text-green-500">Output:</span>{" "}
-                    {ex.outputText}
-                  </p>
-                  {ex.explanation && (
-                    <p>
-                      <span className="text-yellow-600 dark:text-yellow-500/80">
-                        Explanation:
-                      </span>{" "}
-                      {ex.explanation}
-                    </p>
-                  )}
-                </div>
-              </div>
-            ))}
-            <div className="bg-slate-100 dark:bg-[#0B1120]/30 p-4 rounded-lg border border-slate-200 dark:border-white/5 mt-6">
-              <p className="text-[10px] font-bold uppercase text-slate-500 flex items-center gap-2 mb-2">
-                <Terminal size={12} /> Constraints
-              </p>
-              <p className="font-mono text-xs text-slate-600 dark:text-gray-500">
-                {problem.constraints}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Panel */}
-        <div className="w-1/2 flex flex-col bg-slate-50 dark:bg-[#030712]">
-          <div className="flex-1 overflow-hidden">
-            <Editor
-              height="100%"
-              defaultLanguage="javascript"
-              value={userCode}
-              theme={theme === "dark" ? "dsa-dark-theme" : "light"}
-              beforeMount={handleEditorWillMount}
-              options={{
-                minimap: { enabled: false },
-                fontSize: 16,
-                automaticLayout: true,
-                padding: { top: 16 },
-                scrollBeyondLastLine: false,
-                lineNumbersMinChars: 3,
+        <>
+          <div className="fixed inset-0 z-[100] pointer-events-none">
+            <Confetti
+              width={width}
+              height={height}
+              numberOfPieces={500}
+              recycle={false}
+              gravity={0.25}
+              colors={['#22c55e', '#10b981', '#fbbf24', '#f59e0b', '#3b82f6', '#8b5cf6', '#ec4899', '#ef4444', '#06b6d4', '#14b8a6']}
+              tweenDuration={5000}
+              opacity={1}
+              drawShape={(ctx) => {
+                ctx.beginPath();
+                const size = Math.random() * 10 + 8;
+                ctx.rect(-size / 2, -size / 2, size, size);
+                ctx.fill();
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = ctx.fillStyle as string;
               }}
-              onChange={(value) => setUserCode(value || "")}
             />
           </div>
+          <style jsx global>{`
+            canvas {
+              filter: brightness(1.3) saturate(1.5);
+            }
+          `}</style>
+        </>
+      )}
 
-          <div className="h-64 border-t border-slate-300 dark:border-white/10 flex flex-col bg-white dark:bg-[#030712]">
-            <div className="flex border-b border-slate-200 dark:border-white/10">
-              <button className="px-4 py-2 text-[10px] font-bold border-b-2 border-blue-500 text-blue-500 bg-blue-500/5 transition-colors">
-                Testcase
-              </button>
-            </div>
-            <div className="flex-1 p-3 flex gap-4 overflow-hidden bg-slate-50 dark:bg-[#030712]">
-              <div className="flex-1 flex flex-col">
-                <p className="text-[10px] font-bold text-slate-400 mb-1 flex items-center gap-1">
-                  <Settings2 size={10} /> Custom Input (JSON)
-                </p>
-                <textarea
-                  value={customInput}
-                  onChange={(e) => setCustomInput(e.target.value)}
-                  placeholder="e.g."
-                  className="flex-1 bg-white dark:bg-[#0B1120]/50 border border-slate-200 dark:border-white/10 rounded p-2 font-mono text-xs resize-none outline-none focus:border-blue-500 transition-all"
-                />
-              </div>
-              <div className="flex-1 flex flex-col">
-                <p className="text-[10px] font-bold text-slate-400 mb-1 flex items-center gap-1">
-                  <History size={10} /> Console Output
-                </p>
-                <div
-                  className={`flex-1 p-2 font-mono text-xs rounded border border-slate-200 dark:border-white/10 overflow-y-auto bg-white dark:bg-[#0B1120]/50 ${
-                    consoleOutput.includes("Passed")
-                      ? "text-green-500"
-                      : "text-slate-400"
-                  }`}
-                >
-                  {consoleOutput}
-                </div>
-              </div>
-            </div>
+      {/* Left: Problem Description */}
+      <div className="w-1/2 overflow-y-auto p-6 border-r border-slate-200 dark:border-white/5">
+        <div className="flex items-center justify-between mb-4">
+          <span
+            className={`text-xs font-bold px-2 py-1 rounded ${
+              problem.difficulty === "Easy"
+                ? "bg-green-500/10 text-green-600"
+                : problem.difficulty === "Medium"
+                  ? "bg-yellow-500/10 text-yellow-600"
+                  : "bg-red-500/10 text-red-600"
+            }`}
+          >
+            {problem.difficulty}
+          </span>
+          <button
+            onClick={handleBookmark}
+            className={`p-2 rounded-lg transition-colors ${
+              isBookmarked
+                ? "text-emerald-500 hover:text-red-500"
+                : "text-slate-400 hover:text-emerald-500"
+            }`}
+          >
+            <Bookmark className={`w-5 h-5 ${isBookmarked ? "fill-current" : ""}`} />
+          </button>
+        </div>
+
+        <h1 className="text-2xl font-bold mb-4">{problem.title}</h1>
+
+        <div
+          className="prose dark:prose-invert max-w-none text-sm"
+          dangerouslySetInnerHTML={{ __html: problem.description }}
+        />
+
+        {problem.hints.length > 0 && (
+          <div className="mt-6">
+            <h3 className="font-bold mb-2">Hints:</h3>
+            <ul className="list-disc list-inside space-y-1 text-sm text-zinc-600 dark:text-zinc-400">
+              {problem.hints.map((hint, i) => (
+                <li key={i}>{hint}</li>
+              ))}
+            </ul>
           </div>
+        )}
+
+        {problem.constraints && (
+          <div className="mt-6 p-4 bg-slate-100 dark:bg-zinc-900/50 rounded-lg">
+            <h3 className="font-bold mb-2 text-sm">Constraints:</h3>
+            <pre className="text-xs text-zinc-600 dark:text-zinc-400 whitespace-pre-wrap">
+              {problem.constraints}
+            </pre>
+          </div>
+        )}
+      </div>
+
+      {/* Right: Code Editor */}
+      <div className="w-1/2 flex flex-col">
+        <div className="flex items-center justify-between p-2 border-b border-slate-200 dark:border-white/5">
+          <span className="text-xs font-medium text-zinc-500">JavaScript</span>
+          <div className="flex gap-2">
+            <button
+              onClick={handleRun}
+              className="flex items-center gap-1 px-3 py-1 text-xs font-medium bg-slate-200 dark:bg-zinc-800 rounded hover:opacity-80"
+            >
+              <Play className="w-3 h-3" /> Run
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="flex items-center gap-1 px-4 py-1 text-xs font-bold bg-primary text-white rounded hover:opacity-90 disabled:opacity-50"
+            >
+              <Send className="w-3 h-3" />
+              {isSubmitting ? "Submitting..." : "Submit"}
+            </button>
+          </div>
+        </div>
+
+        <div className="flex-1">
+          <Editor
+            height="100%"
+            defaultLanguage="javascript"
+            value={code}
+            theme={theme === "dark" ? "vs-dark" : "light"}
+            onChange={(value) => setCode(value || "")}
+            options={{
+              minimap: { enabled: false },
+              fontSize: 14,
+              padding: { top: 16 },
+            }}
+          />
+        </div>
+
+        <div className="h-32 border-t border-slate-200 dark:border-white/5 p-4 overflow-y-auto bg-slate-50 dark:bg-zinc-900/50">
+          <p className="text-xs font-bold text-zinc-500 mb-2">Output:</p>
+          <pre className="text-xs text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap">
+            {output}
+          </pre>
         </div>
       </div>
 
       {/* Success Modal */}
       {showSuccess && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-          <div className="bg-white dark:bg-[#0B1120] p-8 rounded-2xl text-center shadow-2xl border border-blue-500/20 max-w-sm w-full animate-in zoom-in duration-300">
+        <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="bg-white dark:bg-zinc-900 p-8 rounded-2xl text-center shadow-2xl max-w-sm">
             <div className="w-16 h-16 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle2 size={32} />
             </div>
-            <h2 className="text-2xl font-bold mb-2 text-slate-900 dark:text-white">
-              Accepted!
-            </h2>
-            <p className="text-slate-500 dark:text-gray-400 text-sm mb-6">
-              Your code solved the problem correctly.
+            <h2 className="text-2xl font-bold mb-2">Accepted!</h2>
+            <p className="text-zinc-600 dark:text-zinc-400 text-sm mb-6">
+              Your solution passed all test cases.
             </p>
             <button
               onClick={() => setShowSuccess(false)}
-              className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-transform active:scale-95 shadow-lg shadow-blue-500/30"
+              className="w-full py-3 bg-primary text-white rounded-xl font-bold hover:opacity-90"
             >
-              Next Problem
+              Continue
             </button>
           </div>
         </div>

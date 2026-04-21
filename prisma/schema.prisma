@@ -1,66 +1,183 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  // output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
-
-// ইউজারদের তথ্যের জন্য
+// ১. ইউজারদের তথ্যের জন্য
 model User {
-  id        String   @id @default(uuid())
-  clerkId   String   @unique // Clerk থেকে আসা ইউনিক আইডি
-  email     String   @unique
-  name      String?
-  imageUrl  String?
-  points    Int      @default(0) // প্রবলেম সলভ করলে পয়েন্ট বাড়বে
-
-  streak   Int      @default(0) // ধারাবাহিক সলভিং স্ট্রিক
-  lastSolvedAt DateTime? // শেষবার কখন প্রবলেম সলভ করেছিল
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(uuid())
+  clerkId      String   @unique
+  email        String   @unique
+  name         String?
+  imageUrl     String?
+  role         String   @default("user") // user, admin
+  points       Int      @default(0)
+  streak       Int      @default(0)
+  lastSolvedAt DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
   
-  // রিলেশন: একজন ইউজার অনেকগুলো প্রবলেম সলভ করতে পারেন
-  solvedProblems Solution[]
+  // Relations
+  solutions    Solution[]
+  discussions  Discussion[]
+  replies      Reply[]
+  bookmarks    Bookmark[]
 }
 
-// প্রবলেম ডাটাবেসের জন্য (LeetCode এর মতো)
+// ২. DSA Topics (Array, DP, Graph etc.)
+model Topic {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?   @db.Text
+  icon        String?
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  
+  problems    Problem[]
+}
+
+// ৩. Problem Tags (Two Pointer, Sliding Window etc.)
+model Tag {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  slug      String    @unique
+  createdAt DateTime  @default(now())
+  
+  problems  Problem[]
+}
+
+// ৪. Company Tags (Google, Amazon, Microsoft etc.)
+model Company {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  slug      String    @unique
+  logo      String?
+  createdAt DateTime  @default(now())
+  
+  problems  Problem[]
+}
+
+// ৫. Problems (LeetCode style)
 model Problem {
   id          String   @id @default(uuid())
   title       String
+  slug        String   @unique
   description String   @db.Text
   difficulty  String   // Easy, Medium, Hard
-  category    String   // Array, String, DP, Graph
-  createdAt   DateTime @default(now())
   
-  // রিলেশন
+  // Hints and constraints
+  hints       String[] // Array of hint strings
+  constraints String?  @db.Text
+  
+  // Starter code templates
+  starterCode String?  @db.Text // JSON: { javascript: "...", python: "..." }
+  
+  // Relations
+  topicId     String?
+  topic       Topic?       @relation(fields: [topicId], references: [id])
+  
+  tags        Tag[]
+  companies   Company[]
+  testCases   TestCase[]
   solutions   Solution[]
+  discussions Discussion[]
+  bookmarks   Bookmark[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([difficulty])
+  @@index([topicId])
 }
 
-// কে কোন প্রবলেম সলভ করল তার রেকর্ড রাখার জন্য
+// ৬. Test Cases for Problems
+model TestCase {
+  id        String  @id @default(uuid())
+  problemId String
+  input     String  @db.Text // JSON format
+  output    String  @db.Text // Expected output
+  isHidden  Boolean @default(false) // Sample test case or hidden
+  order     Int     @default(0)
+  
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  
+  @@index([problemId])
+}
+
+// ৭. User Solutions/Submissions
 model Solution {
+  id            String   @id @default(uuid())
+  userId        String
+  problemId     String
+  code          String   @db.Text
+  language      String   @default("javascript")
+  status        String   // Passed, Failed, Runtime Error
+  executionTime Float?   // milliseconds
+  memoryUsage   Float?   // MB
+  createdAt     DateTime @default(now())
+  
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, problemId])
+  @@index([userId])
+  @@index([problemId])
+  @@index([status])
+}
+
+// ৮. Problem Discussions
+model Discussion {
+  id        String   @id @default(uuid())
+  problemId String
+  userId    String
+  title     String
+  content   String   @db.Text
+  upvotes   Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  replies Reply[]
+  
+  @@index([problemId])
+  @@index([userId])
+}
+
+// ৯. Discussion Replies
+model Reply {
+  id           String     @id @default(uuid())
+  discussionId String
+  userId       String
+  content      String     @db.Text
+  upvotes      Int        @default(0)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  
+  discussion Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([discussionId])
+  @@index([userId])
+}
+
+// ১০. Bookmarked Problems
+model Bookmark {
   id        String   @id @default(uuid())
   userId    String
   problemId String
-  code      String   @db.Text
-  language  String   @default("javascript")
-
-  status    String   // Passed, Failed
-
-  executionTime Float? // মিলিসেকেন্ডে এক্সিকিউশন টাইম
-  memoryUsage   Float? // মেগাবাইটে মেমরি ইউসেজ
-  
   createdAt DateTime @default(now())
-
-  user      User     @relation(fields: [userId], references: [id])
-  problem   Problem  @relation(fields: [problemId], references: [id])
+  
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, problemId])
+  @@index([userId])
 }

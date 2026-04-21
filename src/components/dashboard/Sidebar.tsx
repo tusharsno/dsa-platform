@@ -123,15 +123,14 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Code2, Map, Settings, Trophy } from "lucide-react";
+import { LayoutDashboard, User, ArrowLeft, BookMarked, Trophy, Target } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 
 const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Problems", href: "/problems", icon: Code2 },
-  { name: "Roadmap", href: "/roadmap", icon: Map },
-  { name: "Leaderboard", href: "/leaderboard", icon: Trophy },
-  { name: "Settings", href: "/settings", icon: Settings },
+  { name: "My Profile", href: "/profile", icon: User },
+  { name: "Bookmarks", href: "/bookmarks", icon: BookMarked },
+  { name: "Roadmap", href: "/roadmap", icon: Target },
 ];
 
 export function Sidebar() {
@@ -149,6 +148,15 @@ export function Sidebar() {
             DSA.Learn
           </span>
         </div>
+
+        {/* Back to Platform */}
+        <Link
+          href="/"
+          className="flex items-center gap-3 px-4 py-3 mb-6 rounded-lg text-sm font-medium text-zinc-400 hover:bg-white/5 hover:text-white transition-all"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Platform
+        </Link>
 
         {/* Navigation Links */}
         <nav className="space-y-1">
@@ -170,6 +178,27 @@ export function Sidebar() {
             );
           })}
         </nav>
+
+        {/* Quick Actions */}
+        <div className="mt-8 pt-6 border-t border-white/5">
+          <p className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-3 px-4">
+            Quick Actions
+          </p>
+          <Link
+            href="/problems"
+            className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-zinc-400 hover:bg-white/5 hover:text-white transition-all"
+          >
+            <Target className="w-4 h-4" />
+            Solve Problems
+          </Link>
+          <Link
+            href="/discussions"
+            className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-zinc-400 hover:bg-white/5 hover:text-white transition-all"
+          >
+            <Trophy className="w-4 h-4" />
+            Discussions
+          </Link>
+        </div>
       </div>
 
       {/* User Profile Section at Bottom */}

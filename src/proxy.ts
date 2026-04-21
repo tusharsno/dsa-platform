@@ -71,7 +71,7 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 // 'export default' এর পরিবর্তে 'export const proxy' ব্যবহার করুন
-export const proxy = clerkMiddleware(async (auth, request) => {
+export default clerkMiddleware(async (auth, request) => {
   if (!isPublicRoute(request)) {
     await auth.protect();
   }

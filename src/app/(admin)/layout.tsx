@@ -1,26 +1,41 @@
 "use client";
 
 import Link from "next/link";
-import { LayoutDashboard, Database, Settings, LogOut, Code2 } from "lucide-react";
+import { LayoutDashboard, Database, Settings, LogOut, Code2, Users, ArrowLeft, Shield } from "lucide-react";
+import { useClerk } from "@clerk/nextjs";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const { signOut } = useClerk();
+  
   return (
     <div className="flex min-h-screen bg-muted/30">
       {/* Sidebar - Senior Level Sidebar Design */}
       <aside className="w-64 bg-card border-r border-border flex flex-col fixed h-full">
         <div className="p-6 flex items-center gap-3 border-b border-border">
           <div className="bg-primary p-2 rounded-lg">
-            <Code2 className="text-primary-foreground w-5 h-5" />
+            <Shield className="text-primary-foreground w-5 h-5" />
           </div>
           <span className="font-bold tracking-tight">ADMIN PANEL</span>
+        </div>
+
+        <div className="p-4">
+          <Link
+            href="/"
+            className="flex items-center gap-3 p-3 rounded-xl bg-muted hover:bg-muted/80 font-medium transition-colors text-sm"
+          >
+            <ArrowLeft size={18} /> Back to Platform
+          </Link>
         </div>
 
         <nav className="flex-1 p-4 space-y-2 mt-4">
           <Link href="/admin" className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted font-medium transition-colors">
             <LayoutDashboard size={20} /> Dashboard
           </Link>
-          <Link href="/admin/problems" className="flex items-center gap-3 p-3 rounded-xl bg-primary/10 text-primary font-bold transition-colors">
+          <Link href="/admin/problems" className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted font-medium transition-colors">
             <Database size={20} /> Manage Problems
+          </Link>
+          <Link href="/admin/users" className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted font-medium transition-colors">
+            <Users size={20} /> Manage Users
           </Link>
           <Link href="/admin/settings" className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted font-medium transition-colors text-muted-foreground">
             <Settings size={20} /> Settings
@@ -28,7 +43,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         <div className="p-4 border-t border-border">
-          <button className="flex items-center gap-3 p-3 w-full rounded-xl hover:bg-red-500/10 text-red-500 font-bold transition-colors">
+          <button onClick={() => signOut()} className="flex items-center gap-3 p-3 w-full rounded-xl hover:bg-red-500/10 text-red-500 font-bold transition-colors">
             <LogOut size={20} /> Logout
           </button>
         </div>

@@ -47,8 +47,10 @@ export async function POST(req: Request) {
   if (eventType === "user.created") {
     const { id, email_addresses, image_url, first_name, last_name } = evt.data;
 
-    await db.user.create({
-      data: {
+    await db.user.upsert({
+      where: { clerkId: id },
+      update: {},
+      create: {
         clerkId: id,
         email: email_addresses[0].email_address,
         name: `${first_name} ${last_name}`,
