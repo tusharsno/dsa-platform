@@ -4,11 +4,14 @@ import Hero from "./(landing)/components/Hero";
 import PopularTopics from "./(landing)/components/PopularTopics";
 import Process from "./(landing)/components/Process";
 import CreatorSection from "@/components/features/CreatorSection";
+import { getHeroStats } from "@/lib/hero-stats";
 
-export default function Home() {
+export default async function Home() {
+  const stats = await getHeroStats();
+  
   return (
     <main className="flex flex-col min-h-screen">
-      <Hero />
+      <Hero stats={stats} />
       <Features />
       <PopularTopics />
       <Process />

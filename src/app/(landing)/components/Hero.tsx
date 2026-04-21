@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Cpu, Database, Users, Zap } from "lucide-react";
 import Link from "next/link";
 
-export default function Hero() {
+export default function Hero({ stats }: { stats?: { totalProblems: number; totalUsers: number; activeUsers: number } }) {
+  const { totalProblems = 100, totalUsers = 500, activeUsers = 50 } = stats || {};
   return (
     <section className="relative min-h-[95vh] flex items-center justify-center px-6 bg-background overflow-hidden">
       {/* 1. Advanced Mesh Gradient Background - Premium Feel */}
@@ -39,12 +40,15 @@ export default function Hero() {
               </h1>
 
               <p className="max-w-md text-base text-muted-foreground/80 leading-relaxed mb-10 mx-auto lg:mx-0">
-                A high-performance environment for developers who seek
+                Join{" "}
                 <span className="text-foreground font-semibold">
-                  {" "}
-                  algorithmic supremacy{" "}
+                  {totalUsers.toLocaleString()}+ developers
+                </span>{" "}
+                practicing through{" "}
+                <span className="text-primary font-semibold">
+                  {totalProblems}+ curated problems
                 </span>
-                through systematic, data-driven practice.
+                . A high-performance environment for algorithmic mastery.
               </p>
 
               {/* 2. Interactive Social Proof - Senior UX Detail */}
@@ -73,7 +77,7 @@ export default function Hero() {
                     </Button>
                   </div>
 
-                  {/* Live Users Indicator */}
+                  {/* Live Users Indicator - Real Data */}
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -92,7 +96,7 @@ export default function Hero() {
                     </div>
                     <span className="font-medium">
                       <span className="text-emerald-500 animate-pulse">●</span>{" "}
-                      1.2k+ coding now
+                      {activeUsers}+ active this week
                     </span>
                   </motion.div>
                 </div>
