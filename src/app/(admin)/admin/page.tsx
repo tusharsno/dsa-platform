@@ -7,60 +7,55 @@ import { redirect } from "next/navigation";
 export default async function AdminDashboardPage() {
   const admin = await isAdmin();
   if (!admin) redirect("/admin/access-denied");
-  const [
-    totalUsers,
-    totalProblems,
-    totalSolutions,
-    totalDiscussions,
-    recentUsers,
-    problemsByDifficulty,
-    recentSolutions,
-    activeUsers,
-  ] = await Promise.all([
-    db.user.count(),
-    db.problem.count(),
-    db.solution.count(),
-    db.discussion.count(),
-    db.user.findMany({
-      take: 5,
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        imageUrl: true,
-        points: true,
-        createdAt: true,
-        _count: {
-          select: { solutions: true },
-        },
+  
+  // Fetch data sequentially to avoid connection pool exhaustion
+  const totalUsers = await db.user.count();
+  const totalProblems = await db.problem.count();
+  const totalSolutions = await db.solution.count();
+  const totalDiscussions = await db.discussion.count();
+  
+  const recentUsers = await db.user.findMany({
+    take: 5,
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      imageUrl: true,
+      points: true,
+      createdAt: true,
+      _count: {
+        select: { solutions: true },
       },
-    }),
-    db.problem.groupBy({
-      by: ["difficulty"],
-      _count: true,
-    }),
-    db.solution.findMany({
-      take: 10,
-      orderBy: { createdAt: "desc" },
-      include: {
-        user: {
-          select: { name: true, imageUrl: true },
-        },
-        problem: {
-          select: { title: true, difficulty: true },
-        },
+    },
+  });
+  
+  const problemsByDifficulty = await db.problem.groupBy({
+    by: ["difficulty"],
+    _count: true,
+  });
+  
+  const recentSolutions = await db.solution.findMany({
+    take: 10,
+    orderBy: { createdAt: "desc" },
+    include: {
+      user: {
+        select: { name: true, imageUrl: true },
       },
-    }),
-    db.user.count({
-      where: {
-        lastSolvedAt: {
-          gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-        },
+      problem: {
+        select: { title: true, difficulty: true },
       },
-    }),
-  ]);
-
+    },
+  });
+  
+  const activeUsers = await db.user.count({
+    where: {
+      lastSolvedAt: {
+        gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+      },
+    },
+  });
+  
   const passedSolutions = await db.solution.count({
     where: { status: "Passed" },
   });
