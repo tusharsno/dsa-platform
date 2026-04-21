@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Activity, Shield, Trash2, Edit, Plus, Eye } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Activity, Shield, Trash2, Edit, Plus, Search } from "lucide-react";
 import Image from "next/image";
 
 interface ActivityLog {
@@ -24,6 +24,19 @@ interface ActivityLog {
 
 export function ActivityLogsClient({ logs }: { logs: ActivityLog[] }) {
   const [filter, setFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredLogs = useMemo(() => {
+    return logs.filter((log) => {
+      const matchesFilter = filter === "all" || log.resource.toLowerCase() === filter.toLowerCase();
+      const matchesSearch = 
+        log.action.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        log.user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        log.user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        log.resource.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesFilter && matchesSearch;
+    });
+  }, [logs, filter, searchQuery]);
 
   const getActionIcon = (action: string) => {
     if (action.includes("CREATE")) return <Plus className="w-4 h-4 text-green-500" />;
@@ -45,19 +58,28 @@ export function ActivityLogsClient({ logs }: { logs: ActivityLog[] }) {
     return new Date(date).toLocaleString("en-US", {
       month: "short",
       day: "numeric",
+      year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
     });
   };
 
-  const filteredLogs = filter === "all" 
-    ? logs 
-    : logs.filter(log => log.resource.toLowerCase() === filter.toLowerCase());
-
   return (
     <div className="space-y-4">
+      {/* Search Bar */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+        <input
+          type="text"
+          placeholder="Search logs by action, user, or resource..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full pl-10 pr-4 py-2 bg-zinc-900/50 border border-white/5 rounded-lg text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:border-emerald-500/50"
+        />
+      </div>
+
       {/* Filters */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 flex-wrap">
         {["all", "Problem", "User", "Topic", "Tag", "Company"].map((f) => (
           <button
             key={f}
@@ -71,6 +93,10 @@ export function ActivityLogsClient({ logs }: { logs: ActivityLog[] }) {
             {f === "all" ? "All" : f}
           </button>
         ))}
+        <div className="ml-auto px-4 py-2 bg-zinc-900/50 border border-white/5 rounded-lg">
+          <span className="text-zinc-500 text-sm">Total:</span>{" "}
+          <span className="text-white font-semibold text-sm">{filteredLogs.length}</span>
+        </div>
       </div>
 
       {/* Logs List */}
