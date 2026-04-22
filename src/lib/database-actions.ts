@@ -388,6 +388,8 @@ export async function toggleBookmark(problemId: string) {
       await db.bookmark.delete({
         where: { id: existing.id },
       });
+      revalidatePath("/problems");
+      revalidatePath("/bookmarks");
       return { bookmarked: false };
     } else {
       await db.bookmark.create({
@@ -396,6 +398,8 @@ export async function toggleBookmark(problemId: string) {
           problemId,
         },
       });
+      revalidatePath("/problems");
+      revalidatePath("/bookmarks");
       return { bookmarked: true };
     }
   } catch (error) {
