@@ -13,27 +13,21 @@ export function BookmarkCard({ bookmark }: { bookmark: any }) {
     router.refresh();
   };
 
-  const difficultyColor = {
-    Easy: "text-emerald-500",
-    Medium: "text-yellow-500",
-    Hard: "text-red-500",
-  }[bookmark.problem.difficulty];
-
   return (
-    <div className="bg-zinc-900/50 border border-white/5 rounded-lg p-4 hover:border-white/10 transition-all">
+    <div className="bg-white/5 border border-white/10 rounded-lg p-4 hover:border-white/20 transition-all">
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
           <Link
             href={`/problems/${bookmark.problem.slug}`}
-            className="text-white font-medium hover:text-emerald-500 transition-colors"
+            className="text-white font-medium hover:text-white/80 transition-colors"
           >
             {bookmark.problem.title}
           </Link>
           <div className="flex items-center gap-3 mt-2">
-            <span className={`text-xs font-medium ${difficultyColor}`}>
+            <span className="text-xs font-medium text-white/75">
               {bookmark.problem.difficulty}
             </span>
-            <span className="text-xs text-zinc-500">
+            <span className="text-xs text-white/60">
               {bookmark.problem.topic.name}
             </span>
             {bookmark.problem.tags.length > 0 && (
@@ -41,7 +35,7 @@ export function BookmarkCard({ bookmark }: { bookmark: any }) {
                 {bookmark.problem.tags.slice(0, 2).map((tag: any) => (
                   <span
                     key={tag.id}
-                    className="text-xs px-2 py-0.5 bg-white/5 rounded text-zinc-400"
+                    className="text-xs px-2 py-0.5 bg-white/5 rounded text-white/60"
                   >
                     {tag.name}
                   </span>
@@ -52,7 +46,7 @@ export function BookmarkCard({ bookmark }: { bookmark: any }) {
         </div>
         <button
           onClick={handleRemove}
-          className="text-emerald-500 hover:text-red-500 transition-colors"
+          className="text-white/75 hover:text-white/50 transition-colors"
         >
           <Bookmark className="w-5 h-5 fill-current" />
         </button>

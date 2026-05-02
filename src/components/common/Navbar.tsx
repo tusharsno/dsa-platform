@@ -14,12 +14,19 @@ import {
   LogIn,
   Bookmark,
   MessageSquare,
+  ChevronDown,
 } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { dsaTopics } from "@/lib/dsa-data";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import {
   CommandDialog,
@@ -41,7 +48,16 @@ import {
 
 import { UserProfileMenu } from "./UserProfileMenu";
 
-export default function Navbar() {
+interface NavbarProps {
+  topics?: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    icon: string | null;
+  }>;
+}
+
+export default function Navbar({ topics = [] }: NavbarProps) {
   const [open, setOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -69,7 +85,6 @@ export default function Navbar() {
     pathname.startsWith("/problems/") && pathname.split("/").length === 3;
 
   const navLinks = [
-    { name: "Topics", href: "/topics", icon: BookOpen },
     { name: "Problems", href: "/problems", icon: Code2 },
     { name: "Discussions", href: "/discussions", icon: MessageSquare },
     { name: "Bookmarks", href: "/bookmarks", icon: Bookmark },
@@ -85,85 +100,115 @@ export default function Navbar() {
   if (isProblemEditor) return null;
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/[0.05] bg-background/60 backdrop-blur-xl transition-all duration-300">
-      <nav className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Logo */}
-        <div className="flex items-center">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative bg-background border border-primary/20 p-1.5 rounded-xl transition-all group-hover:border-primary/50 group-hover:-translate-y-0.5">
-              <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
-                <path
-                  d="M20 5L33 12.5V27.5L20 35L7 27.5V12.5L20 5Z"
-                  className="stroke-primary"
-                  strokeWidth="2.5"
-                />
-                <circle
-                  cx="20"
-                  cy="20"
-                  r="3"
-                  className="fill-primary animate-pulse"
-                />
-              </svg>
-            </div>
-            <div className="flex flex-col -space-y-1 text-slate-900 dark:text-white">
-              <span className="text-xl font-black tracking-tighter italic">
-                DSA<span className="text-primary not-italic">.</span>
-              </span>
-              <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground/60">
-                Learn
-              </span>
-            </div>
+    <header className="sticky top-0 z-50 w-full">
+      {/* Prisma.io style minimal navbar */}
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-md border-b border-white/10"></div>
+      
+      <nav className="relative max-w-7xl mx-auto flex h-14 items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Minimal Logo - Prisma Style */}
+        <motion.div 
+          className="flex items-center"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Link href="/" className="flex items-center gap-2 group">
+            <span className="text-xl font-bold tracking-tight">
+              <span className="text-white">Syntax</span>
+              <span className="text-white/40">ia</span>
+            </span>
           </Link>
-        </div>
+        </motion.div>
 
-        {/* Desktop Links */}
-        <div className="hidden md:flex items-center gap-1 bg-muted/30 p-1 rounded-full border border-border/40 backdrop-blur-sm">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                "relative flex items-center gap-2 px-4 py-1.5 text-sm font-medium transition-all rounded-full cursor-pointer",
-                pathname.startsWith(link.href)
-                  ? "bg-background text-foreground shadow-sm ring-1 ring-border/20"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              <link.icon
+        {/* Minimal Desktop Navigation - Prisma Style */}
+        <motion.div 
+          className="hidden md:flex items-center gap-6"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          {/* Topics Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
                 className={cn(
-                  "h-4 w-4",
-                  pathname.startsWith(link.href)
-                    ? "text-primary"
-                    : "text-muted-foreground",
+                  "flex items-center gap-1 text-sm font-medium transition-colors",
+                  pathname.startsWith("/topics")
+                    ? "text-white"
+                    : "text-white/60 hover:text-white",
                 )}
-              />
-              {link.name}
-            </Link>
-          ))}
-        </div>
+              >
+                Topics
+                <ChevronDown className="h-3.5 w-3.5" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-48 bg-black/95 backdrop-blur-xl border-white/10">
+              {topics.map((topic) => (
+                <DropdownMenuItem key={topic.id} asChild>
+                  <Link
+                    href={`/topics/${topic.slug}`}
+                    className="px-3 py-2 cursor-pointer text-sm text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+                  >
+                    {topic.name}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-        {/* Desktop Controls */}
-        <div className="hidden md:flex items-center gap-3">
-          <button
+          {navLinks.map((link, index) => (
+            <motion.div
+              key={link.href}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.1 + index * 0.05 }}
+            >
+              <Link
+                href={link.href}
+                className={cn(
+                  "text-sm font-medium transition-colors",
+                  pathname.startsWith(link.href)
+                    ? "text-white"
+                    : "text-white/60 hover:text-white",
+                )}
+              >
+                {link.name}
+              </Link>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Minimal Desktop Controls - Prisma Style */}
+        <motion.div 
+          className="hidden md:flex items-center gap-4"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          {/* Minimal Search */}
+          <motion.button
             onClick={() => setSearchOpen(true)}
-            className="flex items-center gap-3 px-3 py-1.5 bg-muted/40 border border-border/40 rounded-lg text-xs text-muted-foreground hover:bg-muted/60 transition-all outline-none"
+            className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-md text-xs text-white/60 hover:text-white hover:border-white/20 transition-all"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
             <Search className="h-3.5 w-3.5" />
-            <span className="pr-4 cursor-text">Quick Search</span>
-            <kbd className="hidden lg:inline-flex h-5 px-1.5 font-mono text-[10px] border border-border/60 bg-background rounded">
+            <span>Search</span>
+            <kbd className="hidden lg:inline-flex items-center h-4 px-1.5 font-mono text-[9px] border border-white/20 bg-white/5 rounded text-white/50">
               ⌘K
             </kbd>
-          </button>
+          </motion.button>
 
+          {/* YouTube Link */}
           <Link
             href="https://www.youtube.com/@tusharbarua5074"
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2 group transition-all duration-300"
+            className="text-white/60 hover:text-white transition-colors"
           >
             <svg
               viewBox="0 0 24 24"
-              className="h-5 w-5 fill-muted-foreground group-hover:fill-[#FF0000] transition-colors duration-300"
+              className="w-5 h-5 fill-current"
               xmlns="http://www.w3.org/2000/svg"
             >
               <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.377.505 9.377.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
@@ -173,173 +218,68 @@ export default function Navbar() {
           <ThemeToggle />
 
           <SignedIn>
-            {/* Clerk UserButton with Custom Dropdown Menu Items */}
-            {/* <UserButton
-              afterSignOutUrl="/"
-              appearance={{
-                elements: {
-                  avatarBox: "h-9 w-9 border border-primary/20",
-                },
-              }}
-            >
-              <UserButton.MenuItems>
-                <UserButton.Link
-                  label="Dashboard"
-                  labelIcon={<LayoutDashboard className="h-4 w-4" />}
-                  href="/dashboard"
-                />
-                <UserButton.Link
-                  label="My Progress"
-                  labelIcon={<TrendingUp className="h-4 w-4" />}
-                  href="/roadmap"
-                />
-              </UserButton.MenuItems>
-            </UserButton> */}
-            {/* <UserButton
-              afterSignOutUrl="/"
-              appearance={{
-                elements: {
-                  avatarBox:
-                    "h-9 w-9 border-2 border-primary/20 hover:border-primary/50 transition-all",
-                  userButtonPopoverCard:
-                    "bg-background border border-white/[0.1] shadow-2xl rounded-2xl", // পপআপের ব্যাকগ্রাউন্ড ও বর্ডার
-                  userButtonPopoverFooter: "hidden", // নিচের "Secured by Clerk" অংশটি হাইড করার চেষ্টা (অনেক সময় CSS দিয়ে লুকানো যায়)
-                  userPreviewMainIdentifier: "text-foreground font-bold", // নাম
-                  userPreviewSecondaryIdentifier:
-                    "text-muted-foreground text-xs", // ইমেইল
-                  userButtonPopoverActionButton:
-                    "hover:bg-primary/10 transition-colors", // মেনু আইটেম হভার কালার
-                  userButtonPopoverActionButtonLabel:
-                    "text-sm font-medium text-foreground", // মেনু টেক্সট
-                  userButtonPopoverActionButtonIcon: "text-primary", // আইকন কালার
-                },
-                layout: {
-                  shimmer: true,
-                },
-              }}
-            >
-              <UserButton.MenuItems>
-                <UserButton.Link
-                  label="Dashboard"
-                  labelIcon={<LayoutDashboard className="h-4 w-4" />}
-                  href="/dashboard"
-                />
-                <UserButton.Link
-                  label="My Progress"
-                  labelIcon={<TrendingUp className="h-4 w-4" />}
-                  href="/roadmap"
-                />
-              </UserButton.MenuItems>
-            </UserButton> */}
-            <SignedIn>
-              {/* এখন আর Clerk এর বাটন না, আমাদের কাস্টম বাটন দেখা যাবে */}
-              <UserProfileMenu />
-            </SignedIn>
+            <UserProfileMenu />
           </SignedIn>
 
           <SignedOut>
             <SignInButton mode="modal">
-              <Button variant="ghost" size="sm">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="text-white/60 hover:text-white hover:bg-white/5 text-sm"
+              >
                 Log in
               </Button>
             </SignInButton>
+            
             <SignUpButton mode="modal">
               <Button
                 size="sm"
-                className="relative group h-9 px-6 font-bold rounded-full transition-all duration-300 
-               bg-primary text-primary-foreground
-               hover:bg-primary/90 hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] 
-               active:scale-95 border border-white/10 cursor-pointer"
+                className="bg-white text-black hover:bg-white/90 text-sm h-8 px-4"
               >
-                <Zap className="h-3.5 w-3.5 fill-current transition-transform group-hover:scale-110" />
-                Join Now
+                Sign up
               </Button>
             </SignUpButton>
           </SignedOut>
-        </div>
+        </motion.div>
 
         {/* Mobile Controls */}
         <div className="flex md:hidden items-center gap-3">
           <ThemeToggle />
-          <button
+          <motion.button
             onClick={() => setOpen(!open)}
-            className="text-muted-foreground"
+            className="text-white/70 p-2 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all"
+            whileTap={{ scale: 0.9 }}
           >
-            {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </motion.button>
         </div>
       </nav>
 
-      {/* Mobile Menu */}
+      {/* Premium Mobile Menu */}
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="md:hidden border-t border-border/40 bg-background/95 backdrop-blur-xl absolute w-full left-0 shadow-2xl z-50 overflow-hidden"
+            exit={{ opacity: 0, y: -20 }}
+            className="md:hidden absolute w-full left-0 bg-black/90 backdrop-blur-xl border-t border-white/10 shadow-2xl z-50"
           >
-            <div className="flex flex-col gap-2 p-4 pb-8">
+            <div className="flex flex-col gap-2 p-6">
               <SignedIn>
-                <div className="flex items-center justify-between px-4 py-4 mb-2 bg-muted/30 rounded-2xl border border-white/5">
+                <motion.div 
+                  className="flex items-center justify-between px-4 py-4 mb-4 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
                   <div className="flex items-center gap-3">
-                    {/* <UserButton
-                      appearance={{ elements: { avatarBox: "h-10 w-10" } }}
-                    >
-                      <UserButton.MenuItems>
-                        <UserButton.Link
-                          label="Dashboard"
-                          labelIcon={<LayoutDashboard className="h-4 w-4" />}
-                          href="/dashboard"
-                        />
-                      </UserButton.MenuItems>
-                    </UserButton> */}
-                    {/* <UserButton
-                      afterSignOutUrl="/"
-                      appearance={{
-                        elements: {
-                          avatarBox:
-                            "h-9 w-9 border-2 border-primary/20 hover:border-primary/50 transition-all",
-                          userButtonPopoverCard:
-                            "bg-background border border-white/[0.1] shadow-2xl rounded-2xl", // পপআপের ব্যাকগ্রাউন্ড ও বর্ডার
-                          userButtonPopoverFooter: "hidden", // নিচের "Secured by Clerk" অংশটি হাইড করার চেষ্টা (অনেক সময় CSS দিয়ে লুকানো যায়)
-                          userPreviewMainIdentifier:
-                            "text-foreground font-bold", // নাম
-                          userPreviewSecondaryIdentifier:
-                            "text-muted-foreground text-xs", // ইমেইল
-                          userButtonPopoverActionButton:
-                            "hover:bg-primary/10 transition-colors", // মেনু আইটেম হভার কালার
-                          userButtonPopoverActionButtonLabel:
-                            "text-sm font-medium text-foreground", // মেনু টেক্সট
-                          userButtonPopoverActionButtonIcon: "text-primary", // আইকন কালার
-                        },
-                        layout: {
-                          shimmer: true,
-                        },
-                      }}
-                    >
-                      <UserButton.MenuItems>
-                        <UserButton.Link
-                          label="Dashboard"
-                          labelIcon={<LayoutDashboard className="h-4 w-4" />}
-                          href="/dashboard"
-                        />
-                        <UserButton.Link
-                          label="My Progress"
-                          labelIcon={<TrendingUp className="h-4 w-4" />}
-                          href="/roadmap"
-                        />
-                      </UserButton.MenuItems>
-                    </UserButton> */}
-                    <SignedIn>
-                      {/* এখন আর Clerk এর বাটন না, আমাদের কাস্টম বাটন দেখা যাবে */}
-                      <UserProfileMenu />
-                    </SignedIn>
+                    <UserProfileMenu />
                     <div className="flex flex-col">
-                      <span className="text-sm font-bold">
+                      <span className="text-sm font-semibold text-white">
                         {user?.fullName || "User"}
                       </span>
-                      <span className="text-[10px] text-muted-foreground uppercase tracking-widest">
+                      <span className="text-[10px] text-white/50 uppercase tracking-widest">
                         Premium Member
                       </span>
                     </div>
@@ -348,37 +288,70 @@ export default function Navbar() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-primary font-bold"
+                      className="text-white font-medium bg-white/10 hover:bg-white/20 border border-white/20 rounded-full"
                     >
                       Dashboard
                     </Button>
                   </Link>
-                </div>
+                </motion.div>
               </SignedIn>
 
-              {navLinks.map((link) => (
-                <Link
+              {/* Topics Section in Mobile */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 }}
+                className="mb-2"
+              >
+                <div className="px-4 py-2 text-xs font-semibold text-white/40 uppercase tracking-wider">
+                  Topics
+                </div>
+                {topics.map((topic) => (
+                  <Link
+                    key={topic.id}
+                    href={`/topics/${topic.slug}`}
+                    onClick={() => setOpen(false)}
+                    className="block px-4 py-2.5 rounded-xl text-sm text-white/70 hover:text-white hover:bg-white/10 transition-all"
+                  >
+                    {topic.name}
+                  </Link>
+                ))}
+              </motion.div>
+
+              {navLinks.map((link, index) => (
+                <motion.div
                   key={link.href}
-                  href={link.href}
-                  onClick={() => setOpen(false)}
-                  className={cn(
-                    "flex items-center gap-4 px-4 py-3.5 rounded-xl font-medium transition-all",
-                    pathname.startsWith(link.href)
-                      ? "bg-primary/10 text-primary"
-                      : "hover:bg-muted",
-                  )}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 + index * 0.05 }}
                 >
-                  <link.icon className="h-5 w-5" />
-                  {link.name}
-                </Link>
+                  <Link
+                    href={link.href}
+                    onClick={() => setOpen(false)}
+                    className={cn(
+                      "flex items-center gap-4 px-4 py-3 rounded-xl font-medium transition-all",
+                      pathname.startsWith(link.href)
+                        ? "bg-white/15 text-white border border-white/20"
+                        : "text-white/70 hover:text-white hover:bg-white/10",
+                    )}
+                  >
+                    <link.icon className="h-5 w-5" />
+                    {link.name}
+                  </Link>
+                </motion.div>
               ))}
 
               <SignedOut>
-                <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-border/40">
+                <motion.div 
+                  className="grid grid-cols-2 gap-3 mt-6 pt-6 border-t border-white/10"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
                   <SignInButton mode="modal">
                     <Button
                       variant="outline"
-                      className="w-full rounded-xl flex gap-2 h-12"
+                      className="w-full rounded-xl flex gap-2 h-12 bg-white/5 border-white/20 text-white hover:bg-white/10"
                     >
                       <LogIn className="h-4 w-4" /> Log in
                     </Button>
@@ -386,13 +359,13 @@ export default function Navbar() {
                   <SignUpButton mode="modal">
                     <Button
                       size="sm"
-                      className="w-full rounded-xl flex gap-2 h-12 font-bold bg-primary text-primary-foreground"
+                      className="w-full rounded-xl flex gap-2 h-12 font-semibold bg-white text-black hover:bg-white/90"
                     >
-                      <Zap className="h-3.5 w-3.5 fill-current" />
+                      <Zap className="h-3.5 w-3.5" />
                       Join Now
                     </Button>
                   </SignUpButton>
-                </div>
+                </motion.div>
               </SignedOut>
             </div>
           </motion.div>

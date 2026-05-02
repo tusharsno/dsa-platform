@@ -1,10 +1,10 @@
 "use client";
 
 import { motion, Variants } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Cpu } from "lucide-react";
 import Link from "next/link";
 import { getIconComponent } from "@/lib/icon-map";
-import type { LucideIcon } from "lucide-react";
+import { useUser } from "@clerk/nextjs";
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -23,12 +23,6 @@ const cardVariants: Variants = {
   },
 };
 
-const colorMap: Record<number, { color: string; beamColor: string }> = {
-  0: { color: "from-blue-500 to-cyan-400", beamColor: "via-blue-500" },
-  1: { color: "from-purple-500 to-pink-500", beamColor: "via-purple-500" },
-  2: { color: "from-yellow-500 to-orange-400", beamColor: "via-yellow-500" },
-};
-
 interface Topic {
   id: string;
   name: string;
@@ -43,62 +37,70 @@ interface PopularTopicsClientProps {
 }
 
 export default function PopularTopicsClient({ topics }: PopularTopicsClientProps) {
+  const { user, isLoaded } = useUser();
+
   return (
     <>
+      {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/20 bg-primary/10 text-primary text-[10px] font-bold tracking-[0.2em] uppercase mb-4">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-white/80 text-xs font-medium shadow-lg mb-6"
+          >
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
             >
-              <circle cx="12" cy="12" r="10" />
-              <circle cx="12" cy="12" r="6" />
-              <circle cx="12" cy="12" r="2" />
-            </svg>
-            Learning Path
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground italic uppercase">
-            Popular{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 not-italic uppercase">
-              Topics
+              <Cpu className="w-3 h-3 text-white/60" />
+            </motion.div>
+            <span className="bg-gradient-to-r from-white via-gray-200 to-white bg-clip-text text-transparent font-semibold tracking-wide">
+              LEARNING PATH
             </span>
+          </motion.div>
+          
+          <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white leading-[1.1] mb-4">
+            Popular topics.
+            <br />
+            <span className="text-white/40">Start learning today.</span>
           </h2>
+          
+          <p className="text-white/60 max-w-md text-base leading-relaxed font-light">
+            {isLoaded && user 
+              ? "Continue your learning journey with these popular topics."
+              : "Master core algorithms through our strategically designed problem sets."
+            }
+          </p>
         </motion.div>
 
         <Link
           href="/topics"
-          className="group flex items-center gap-3 text-xs font-bold tracking-widest uppercase text-muted-foreground hover:text-primary transition-all underline-offset-8 hover:underline"
+          className="group flex items-center gap-3 text-sm font-semibold text-white hover:gap-4 transition-all"
         >
-          Explore All Modules
-          <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+          {isLoaded && user ? "View All Topics" : "Explore Topics"}
+          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
         </Link>
       </div>
 
+      {/* Topics Grid */}
       <motion.div
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
-        className="grid grid-cols-1 md:grid-cols-3 gap-6"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto"
       >
         {topics.map((topic, index) => {
           const progress =
             topic.totalProblems > 0
               ? (topic.solvedProblems / topic.totalProblems) * 100
               : 0;
-          const colors = colorMap[index] || colorMap[0];
           const IconComponent = getIconComponent(topic.icon);
 
           return (
@@ -108,56 +110,79 @@ export default function PopularTopicsClient({ topics }: PopularTopicsClientProps
               className="group relative"
             >
               <Link href={`/topics/${topic.slug}`}>
-                <div className="h-full p-8 rounded-2xl border border-white/[0.08] bg-card/50 backdrop-blur-sm hover:border-white/20 hover:bg-card/80 transition-all duration-500 relative overflow-hidden">
-                  <div className="flex items-start justify-between mb-10">
-                    <div
-                      className={`relative w-14 h-14 rounded-xl flex items-center justify-center bg-gradient-to-br ${colors.color} p-[1px]`}
+                <div className="h-full p-8 md:p-10 rounded-3xl bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-white/20 hover:from-white/8 hover:to-white/[0.03] transition-all duration-500 relative overflow-hidden shadow-lg hover:shadow-xl min-h-[280px]">
+                  {/* Header */}
+                  <div className="flex items-start justify-between mb-8 relative z-10">
+                    <motion.div
+                      className="w-16 h-16 rounded-2xl bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm border border-white/30 flex items-center justify-center shadow-lg"
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
                     >
-                      <div className="w-full h-full rounded-[11px] bg-background flex items-center justify-center">
-                        <IconComponent className="w-7 h-7 text-white group-hover:scale-110 transition-transform duration-500" />
-                      </div>
-                      <div
-                        className={`absolute inset-0 blur-xl opacity-10 group-hover:opacity-20 transition-opacity duration-500 bg-gradient-to-br ${colors.color}`}
-                      />
-                    </div>
+                      <IconComponent className="w-8 h-8 text-white drop-shadow-lg" />
+                    </motion.div>
 
-                    <div className="text-[10px] font-bold text-muted-foreground/30 tracking-widest uppercase italic">
-                      {topic.solvedProblems > 0 ? "Active" : "New"}
-                    </div>
+                    <motion.div 
+                      className="px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 shadow-lg"
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <span className="text-xs font-bold text-white tracking-wider">
+                        {topic.solvedProblems > 0 ? "ACTIVE" : "NEW"}
+                      </span>
+                    </motion.div>
                   </div>
 
+                  {/* Content */}
                   <div className="space-y-6 relative z-10">
-                    <h3 className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors italic uppercase tracking-tight">
+                    <h3 className="text-2xl font-black text-white tracking-tight group-hover:text-white/95 transition-colors leading-tight">
                       {topic.name}
                     </h3>
 
-                    <div className="space-y-3">
-                      <div className="flex justify-between text-[11px] font-mono uppercase tracking-tighter">
-                        <span className="text-muted-foreground/60">
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-white/60 font-medium">
                           Progress
                         </span>
-                        <span className="text-foreground font-bold">
+                        <span className="text-xl font-black text-white">
                           {Math.round(progress)}%
                         </span>
                       </div>
 
-                      <div className="h-[4px] w-full bg-white/5 rounded-full overflow-hidden relative">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          whileInView={{ width: `${progress}%` }}
-                          transition={{ duration: 1, ease: "easeOut" }}
-                          className={`absolute h-full rounded-full bg-gradient-to-r ${colors.color}`}
-                        />
+                      <div className="relative">
+                        <div className="h-3 w-full bg-white/10 rounded-full overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            whileInView={{ width: `${progress}%` }}
+                            transition={{ duration: 1.2, ease: "easeOut", delay: index * 0.15 }}
+                            className="h-full rounded-full bg-gradient-to-r from-white/80 via-white/60 to-white/40 shadow-lg"
+                          />
+                        </div>
                       </div>
-                      <p className="text-[10px] text-muted-foreground/40 font-medium">
-                        {topic.solvedProblems} / {topic.totalProblems} PROBLEMS
-                        SOLVED
-                      </p>
+                      
+                      <div className="flex items-center justify-between pt-2">
+                        <p className="text-sm text-white/70 font-light">
+                          <span className="font-bold text-white">{topic.solvedProblems}</span> / {topic.totalProblems} solved
+                        </p>
+                        
+                        <motion.div
+                          className="flex items-center gap-2 text-sm font-semibold text-white/80 opacity-0 group-hover:opacity-100 transition-all"
+                          initial={{ x: -10 }}
+                          whileInView={{ x: 0 }}
+                        >
+                          <span>Start</span>
+                          <motion.span
+                            animate={{ x: [0, 3, 0] }}
+                            transition={{ duration: 1.5, repeat: Infinity }}
+                          >
+                            →
+                          </motion.span>
+                        </motion.div>
+                      </div>
                     </div>
                   </div>
 
-                  <div
-                    className={`absolute bottom-0 left-0 w-full h-[2px] scale-x-0 group-hover:scale-x-100 transition-transform duration-500 bg-gradient-to-r from-transparent ${colors.beamColor} to-transparent`}
+                  {/* Premium accent line */}
+                  <motion.div 
+                    className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-white/20 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500"
                   />
                 </div>
               </Link>

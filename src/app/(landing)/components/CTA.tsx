@@ -172,11 +172,21 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Zap } from "lucide-react";
+import { ArrowRight, Cpu, Users } from "lucide-react";
 import Link from "next/link";
+import { useUser } from "@clerk/nextjs";
 
-export default function CTA() {
+interface CTAProps {
+  stats?: {
+    totalUsers: number;
+    activeUsers: number;
+    totalProblems: number;
+  };
+}
+
+export default function CTA({ stats }: CTAProps) {
   const [mounted, setMounted] = useState(false);
+  const { user, isLoaded } = useUser();
 
   useEffect(() => {
     setMounted(true);
@@ -184,66 +194,176 @@ export default function CTA() {
 
   if (!mounted) return null;
 
+  const { totalUsers = 0, activeUsers = 0, totalProblems = 0 } = stats || {};
+  const displayUsers = Math.max(totalUsers, 1);
+  const displayActive = Math.max(activeUsers, 1);
+
   return (
-    <section className="py-24 relative overflow-hidden bg-background">
+    <section className="py-16 relative overflow-hidden bg-black">
       <div className="container px-6 mx-auto max-w-5xl relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="relative rounded-[2.5rem] border border-black/[0.05] dark:border-white/[0.05] bg-slate-50/50 dark:bg-card/20 backdrop-blur-sm p-12 md:p-20 text-center overflow-hidden group shadow-sm dark:shadow-none"
+          className="relative group"
         >
-          {/* Subtle Background Grid - Adjusted for Light/Dark */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#00000008_1px,transparent_1px),linear-gradient(to_bottom,#00000008_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#80808005_1px,transparent_1px),linear-gradient(to_bottom,#80808005_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
-
-          <div className="relative z-10">
-            {/* Minimal Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-black/5 dark:border-white/5 bg-black/[0.03] dark:bg-white/[0.03] text-slate-500 dark:text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase mb-8">
-              <Zap className="w-3 h-3 text-primary" />
-              Join the Elite
-            </div>
-
-            {/* Title - Fixed for Light/Dark Visibility */}
-            <h2 className="text-4xl md:text-5xl font-black tracking-tighter text-slate-900 dark:text-white mb-8 leading-[1] italic uppercase">
-              Ready to Start Your <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-600 to-indigo-600 dark:from-white dark:via-primary/80 dark:to-white/50 not-italic uppercase">
-                DSA Journey?
-              </span>
-            </h2>
-
-            <p className="max-w-xl mx-auto text-slate-500 dark:text-muted-foreground/50 text-sm md:text-base mb-12 font-medium dark:font-light leading-relaxed tracking-wide">
-              Track your progress and improve your problem-solving skills today.
-              Access 80+ challenges curated for high-performance learning.
-            </p>
-
-            {/* Button - Dark Background on both modes for contrast */}
-            <div className="flex justify-center">
-              <Link
-                href="/auth/sign-up"
-                className="group/btn relative flex items-center gap-3 px-8 h-14 bg-slate-900 dark:bg-[#0A0C14] border border-white/10 hover:border-primary/50 text-white rounded-full font-bold text-sm tracking-widest uppercase transition-all duration-300 active:scale-95 shadow-2xl overflow-hidden"
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-12 md:p-20 text-center hover:border-white/20 hover:bg-white/10 transition-all duration-500">
+            <div className="relative z-10">
+              {/* Header Badge */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-white/80 text-xs font-medium shadow-lg mb-8"
               >
-                <div className="absolute -inset-0.5 bg-primary/20 rounded-full blur-md opacity-0 group-hover/btn:opacity-100 transition duration-500 -z-10" />
-                <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/[0.1] to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite]" />
-                Create Free Account
-                <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform text-primary" />
-              </Link>
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                >
+                  <Cpu className="w-3 h-3 text-white/60" />
+                </motion.div>
+                <span className="bg-gradient-to-r from-white via-gray-200 to-white bg-clip-text text-transparent font-semibold tracking-wide">
+                  {isLoaded && user ? "CONTINUE YOUR JOURNEY" : "START YOUR JOURNEY"}
+                </span>
+              </motion.div>
+
+              {/* Main Title */}
+              <motion.h2 
+                className="text-4xl md:text-5xl font-black tracking-tight text-white mb-8 leading-[1.1]"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+              >
+                {isLoaded && user ? (
+                  <>
+                    Keep building.
+                    <br />
+                    <span className="text-white/40">
+                      Keep growing.
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    Start your journey.
+                    <br />
+                    <span className="text-white/40">
+                      Master DSA today.
+                    </span>
+                  </>
+                )}
+              </motion.h2>
+
+              {/* Description */}
+              <motion.p 
+                className="max-w-2xl mx-auto text-white/60 text-base md:text-lg mb-12 font-light leading-relaxed"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 }}
+              >
+                {isLoaded && user ? (
+                  `Continue solving problems and tracking progress. Join ${displayUsers.toLocaleString()}+ developers mastering algorithms.`
+                ) : (
+                  `Join ${displayUsers.toLocaleString()}+ developers. Access ${totalProblems}+ curated problems and track your progress.`
+                )}
+              </motion.p>
+
+              {/* CTA Button */}
+              <motion.div 
+                className="flex justify-center mb-12"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.4 }}
+              >
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Link
+                    href={isLoaded && user ? "/dashboard" : "/auth/sign-up"}
+                    className="group/btn relative inline-flex items-center gap-3 px-8 py-4 bg-white hover:bg-gray-50 text-black border-0 rounded-full font-bold text-base shadow-xl shadow-white/15 hover:shadow-white/25 transition-all duration-300 overflow-hidden"
+                  >
+                    <motion.div
+                      animate={{ rotate: [0, 5, -5, 0] }}
+                      transition={{ duration: 3, repeat: Infinity }}
+                    >
+                      <Cpu className="w-5 h-5 text-black" />
+                    </motion.div>
+                    {isLoaded && user ? "Go to Dashboard" : "Start Coding Free"}
+                    <motion.div
+                      className="group-hover/btn:translate-x-0.5 transition-transform"
+                    >
+                      <ArrowRight className="w-5 h-5 text-black" />
+                    </motion.div>
+                    
+                    {/* Shimmer effect */}
+                    <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite]" />
+                  </Link>
+                </motion.div>
+              </motion.div>
+
+              {/* Social Proof */}
+              <motion.div 
+                className="flex items-center justify-center gap-4"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.5 }}
+              >
+                <div className="flex -space-x-2">
+                  {[...Array(3)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm border-2 border-white/20 flex items-center justify-center"
+                      animate={{
+                        scale: [1, 1.1, 1],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        delay: i * 0.3,
+                      }}
+                    >
+                      <Users className="w-3 h-3 text-white" />
+                    </motion.div>
+                  ))}
+                </div>
+                <span className="flex items-center gap-2">
+                  <motion.div 
+                    className="w-2 h-2 bg-white/40 rounded-full"
+                    animate={{
+                      opacity: [0.4, 1, 0.4],
+                      scale: [1, 1.2, 1],
+                    }}
+                    transition={{
+                      duration: 1.5,
+                      repeat: Infinity,
+                    }}
+                  />
+                  <span className="text-white/60 text-sm font-light">
+                    {isLoaded && user ? 
+                      `${displayActive}+ developers coding right now` : 
+                      `${displayUsers.toLocaleString()}+ developers already joined`
+                    }
+                  </span>
+                </span>
+              </motion.div>
             </div>
 
-            {/* Social Proof Line */}
-            <div className="mt-12 flex items-center justify-center gap-4">
-              <div className="flex -space-x-2">
-                {[1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className="w-6 h-6 rounded-full border-2 border-white dark:border-[#0A0C14] bg-slate-200 dark:bg-muted/20"
-                  />
-                ))}
-              </div>
-              <p className="text-[10px] font-bold text-slate-400 dark:text-muted-foreground/30 uppercase tracking-widest">
-                80+ problems solved today
-              </p>
-            </div>
+            {/* Subtle glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            
+            {/* Premium accent line */}
+            <motion.div 
+              className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-32 h-0.5 bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-full"
+              initial={{ width: 0 }}
+              whileInView={{ width: 128 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1, delay: 0.6 }}
+            />
           </div>
         </motion.div>
       </div>

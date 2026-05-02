@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   Github,
@@ -7,182 +9,174 @@ import {
   Code2,
   ExternalLink,
   Heart,
+  Cpu,
+  ArrowRight,
 } from "lucide-react";
+import { motion } from "framer-motion";
+import { useUser } from "@clerk/nextjs";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const { user, isLoaded } = useUser();
 
   return (
-    <footer className="w-full border-t border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container px-4 py-16 mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
-          {/* Brand & Mission Section */}
-          <div className="lg:col-span-2 space-y-6">
-            <Link href="/" className="flex items-center gap-2.5">
-              <div className="bg-primary p-2 rounded-xl shadow-lg shadow-primary/20">
-                <Code2 className="w-6 h-6 text-primary-foreground" />
-              </div>
-              <span className="text-2xl font-bold tracking-tighter">
-                DSA Learn
+    <footer className="relative overflow-hidden bg-black">
+      {/* Top border with gradient - bold in middle */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+      
+      <div className="container px-6 py-12 mx-auto max-w-7xl">
+        {/* Main Footer Content */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+          {/* Brand Section */}
+          <motion.div 
+            className="lg:col-span-1 space-y-4"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <Link href="/" className="inline-block">
+              <span className="text-xl font-bold tracking-tight">
+                <span className="text-white">Syntax</span>
+                <span className="text-white/40">ia</span>
               </span>
             </Link>
-            <p className="text-muted-foreground text-base max-w-sm leading-relaxed">
-              Empowering developers to ace coding interviews and master data
-              structures with a structured, intuitive learning experience.
+            
+            <p className="text-white/50 text-sm leading-relaxed font-light max-w-xs">
+              Master algorithms and data structures with a structured, intuitive learning experience.
             </p>
-            <div className="flex gap-4">
-              <Link
-                href="#"
-                className="p-2 rounded-full bg-secondary hover:bg-primary hover:text-primary-foreground transition-all duration-300"
-              >
-                <Github size={20} />
-              </Link>
-              <Link
-                href="#"
-                className="p-2 rounded-full bg-secondary hover:bg-primary hover:text-primary-foreground transition-all duration-300"
-              >
-                <Twitter size={20} />
-              </Link>
-              <Link
-                href="#"
-                className="p-2 rounded-full bg-secondary hover:bg-primary hover:text-primary-foreground transition-all duration-300"
-              >
-                <Linkedin size={20} />
-              </Link>
+            
+            {/* Social Links */}
+            <div className="flex gap-3 pt-2">
+              {[
+                { icon: Github, href: "https://github.com/tusharsno", label: "GitHub" },
+                { icon: Twitter, href: "https://twitter.com/tusharsno", label: "Twitter" },
+                { icon: Linkedin, href: "https://linkedin.com/in/tusharbarua", label: "LinkedIn" }
+              ].map((social) => (
+                <Link
+                  key={social.label}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/40 hover:text-white transition-colors duration-300"
+                  aria-label={social.label}
+                >
+                  <social.icon className="w-5 h-5" />
+                </Link>
+              ))}
             </div>
-          </div>
+          </motion.div>
 
-          {/* Quick Navigation */}
-          <div>
-            <h3 className="font-bold text-foreground mb-6 text-sm uppercase tracking-widest">
+          {/* Platform Links */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+          >
+            <h3 className="font-semibold text-white mb-4 text-sm">
               Platform
             </h3>
-            <ul className="space-y-4 text-sm font-medium text-muted-foreground">
-              <li>
-                <Link
-                  href="/topics"
-                  className="hover:text-primary flex items-center gap-1 group transition-colors"
-                >
-                  Explore Topics{" "}
-                  <ExternalLink
-                    size={12}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity"
-                  />
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/problems"
-                  className="hover:text-primary transition-colors"
-                >
-                  Curated Problems
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/roadmap"
-                  className="hover:text-primary transition-colors"
-                >
-                  Learning Roadmap
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/contribute"
-                  className="hover:text-primary transition-colors"
-                >
-                  Contribute
-                </Link>
-              </li>
+            <ul className="space-y-2.5">
+              {[
+                { name: "Topics", href: "/topics" },
+                { name: "Problems", href: "/problems" },
+                { name: "Roadmap", href: "/roadmap" },
+                { name: "Dashboard", href: "/dashboard" },
+              ].map((link) => (
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    className="text-white/50 hover:text-white text-sm transition-colors duration-300"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
-          </div>
+          </motion.div>
 
-          {/* Resources */}
-          <div>
-            <h3 className="font-bold text-foreground mb-6 text-sm uppercase tracking-widest">
+          {/* Resources Links */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+          >
+            <h3 className="font-semibold text-white mb-4 text-sm">
               Resources
             </h3>
-            <ul className="space-y-4 text-sm font-medium text-muted-foreground">
-              <li>
-                <Link
-                  href="/docs"
-                  className="hover:text-primary transition-colors"
-                >
-                  Documentation
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/blog"
-                  className="hover:text-primary transition-colors"
-                >
-                  Technical Blog
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/community"
-                  className="hover:text-primary transition-colors"
-                >
-                  Discord Community
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/faq"
-                  className="hover:text-primary transition-colors"
-                >
-                  Help Center
-                </Link>
-              </li>
+            <ul className="space-y-2.5">
+              {[
+                { name: "Documentation", href: "/docs" },
+                { name: "Blog", href: "/blog" },
+                { name: "Community", href: "/community" },
+                { name: "Help Center", href: "/help" },
+              ].map((link) => (
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    className="text-white/50 hover:text-white text-sm transition-colors duration-300"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
-          </div>
+          </motion.div>
 
-          {/* Support/Contact */}
-          <div>
-            <h3 className="font-bold text-foreground mb-6 text-sm uppercase tracking-widest">
-              Support
+          {/* Support & Contact */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+          >
+            <h3 className="font-semibold text-white mb-4 text-sm">
+              Legal
             </h3>
-            <ul className="space-y-4 text-sm font-medium text-muted-foreground">
-              <li className="flex items-center gap-2">
-                <Mail size={16} /> support@dsalearn.com
-              </li>
-              <li>
-                <Link
-                  href="/privacy"
-                  className="hover:text-primary transition-colors"
-                >
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/terms"
-                  className="hover:text-primary transition-colors"
-                >
-                  Terms of Service
-                </Link>
-              </li>
+            <ul className="space-y-2.5">
+              {[
+                { name: "Privacy", href: "/privacy" },
+                { name: "Terms", href: "/terms" },
+                { name: "Contact", href: "/contact" },
+              ].map((link) => (
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    className="text-white/50 hover:text-white text-sm transition-colors duration-300"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
-          </div>
+          </motion.div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="pt-8 border-t border-border/40 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-sm text-muted-foreground font-medium">
-            © {currentYear} DSA Learn. All rights reserved.
+        {/* Bottom Section */}
+        <motion.div 
+          className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.4 }}
+        >
+          <p className="text-white/40 text-sm">
+            © {currentYear} Syntaxia. All rights reserved.
           </p>
-          <div className="flex items-center gap-1.5 text-sm text-muted-foreground font-medium">
-            Built with <Heart size={14} className="text-red-500 fill-red-500" />{" "}
-            by
+          
+          <p className="text-white/40 text-sm">
+            Built by{" "}
             <Link
-              href="https://yourportfolio.com"
-              className="text-foreground hover:text-primary underline underline-offset-4 transition-colors"
+              href="https://github.com/tusharsno"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/60 hover:text-white transition-colors duration-300"
             >
               Tushar
             </Link>
-          </div>
-        </div>
+          </p>
+        </motion.div>
       </div>
     </footer>
   );

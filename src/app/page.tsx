@@ -1,6 +1,8 @@
 import CTA from "./(landing)/components/CTA";
 import Features from "./(landing)/components/Features";
 import Hero from "./(landing)/components/Hero";
+import CodePreview from "./(landing)/components/CodePreview";
+import BentoGrid from "./(landing)/components/BentoGrid";
 import PopularTopics from "./(landing)/components/PopularTopics";
 import Process from "./(landing)/components/Process";
 import CreatorSection from "@/components/features/CreatorSection";
@@ -16,6 +18,8 @@ export default async function Home() {
   return (
     <main className="flex flex-col min-h-screen">
       <Hero stats={heroStats} />
+      <BentoGrid />
+      <CodePreview />
       <Features stats={featureStats} />
       <PopularTopics />
       <Process />

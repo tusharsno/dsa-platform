@@ -16,7 +16,7 @@ export function StatsCard({
   description,
 }: StatsCardProps) {
   return (
-    <Card className="bg-zinc-900/50 border-white/5">
+    <Card className="bg-gradient-to-br from-white/[0.08] to-white/[0.04] border-white/10 hover:border-white/20 transition-all duration-300">
       <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
         <CardTitle className="text-sm font-medium text-zinc-400">
           {title}

@@ -167,6 +167,8 @@ export async function createTopicAdmin(data: {
   name: string;
   slug: string;
   icon?: string;
+  description?: string;
+  content?: string;
   order: number;
 }) {
   try {
@@ -182,7 +184,7 @@ export async function createTopicAdmin(data: {
 
 export async function updateTopicAdmin(
   id: string,
-  data: { name?: string; slug?: string; icon?: string; order?: number }
+  data: { name?: string; slug?: string; icon?: string; description?: string; content?: string; order?: number }
 ) {
   try {
     const topic = await db.topic.update({ where: { id }, data });

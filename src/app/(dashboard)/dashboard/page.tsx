@@ -27,7 +27,14 @@ export default async function DashboardPage() {
   const recentSubmissions = await getRecentSubmissions();
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto min-h-screen">
+    <div className="min-h-screen bg-black text-white relative">
+      {/* Background Effects - Same as Profile Page */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[400px] bg-white/[0.015] blur-[120px]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] opacity-40 [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+      </div>
+
+      <div className="relative p-6 space-y-6 max-w-7xl mx-auto z-10">
       {/* Header Section */}
       <header>
         <h1 className="text-3xl font-bold tracking-tight text-white">
@@ -72,7 +79,7 @@ export default async function DashboardPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left Column: Heatmap & Insights (Spans 2 columns) */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="p-6 bg-zinc-900/30 border border-white/5 rounded-xl">
+          <div className="bg-gradient-to-br from-white/[0.08] to-white/[0.04] border border-white/10 rounded-xl p-6">
             <ActivityPreview data={activityData} />
             <Link 
               href="/profile" 
@@ -83,7 +90,7 @@ export default async function DashboardPage() {
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="p-6 bg-zinc-900/30 border border-white/5 rounded-xl">
+            <div className="bg-gradient-to-br from-white/[0.08] to-white/[0.04] border border-white/10 rounded-xl p-6">
               <h3 className="text-white font-semibold mb-4 text-sm">
                 Recommended Topics
               </h3>
@@ -91,7 +98,7 @@ export default async function DashboardPage() {
                 Focus on Dynamic Programming and Graphs to strengthen your core skills.
               </p>
             </div>
-            <div className="p-6 bg-zinc-900/30 border border-white/5 rounded-xl">
+            <div className="bg-gradient-to-br from-white/[0.08] to-white/[0.04] border border-white/10 rounded-xl p-6">
               <h3 className="text-white font-semibold mb-4 text-sm">
                 Recent Accomplishments
               </h3>
@@ -104,9 +111,10 @@ export default async function DashboardPage() {
         </div>
 
         {/* Right Column: Recent Submissions (Side Panel) */}
-        <div className="p-6 bg-zinc-900/30 border border-white/5 rounded-xl h-fit">
+        <div className="bg-gradient-to-br from-white/[0.08] to-white/[0.04] border border-white/10 rounded-xl p-6 h-fit">
           <RecentSubmissions submissions={recentSubmissions} />
         </div>
+      </div>
       </div>
     </div>
   );

@@ -10,8 +10,22 @@ const inter = Inter({ subsets: ["latin"] });
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
-        <body className={cn(inter.className, "bg-[#020617] selection:bg-blue-500/30")} suppressHydrationWarning>
+      <html lang="en" suppressHydrationWarning style={{ scrollBehavior: "auto" }}>
+        <head>
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                if ('scrollRestoration' in window.history) {
+                  window.history.scrollRestoration = 'manual';
+                }
+                window.addEventListener('beforeunload', () => {
+                  window.scrollTo(0, 0);
+                });
+              `,
+            }}
+          />
+        </head>
+        <body className={cn(inter.className, "bg-black selection:bg-white/20")} suppressHydrationWarning>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
             <ConditionalShell>{children}</ConditionalShell>
           </ThemeProvider>

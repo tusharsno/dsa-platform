@@ -73,72 +73,71 @@ export default function ProblemsClient({
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case "Easy":
-        return "text-green-600 dark:text-green-500";
+        return "text-white/75";
       case "Medium":
-        return "text-yellow-600 dark:text-yellow-500";
+        return "text-white/75";
       case "Hard":
-        return "text-red-600 dark:text-red-500";
+        return "text-white/75";
       default:
-        return "";
+        return "text-white/75";
     }
   };
 
   return (
-    <main className="min-h-screen bg-white dark:bg-[#030712] text-slate-900 dark:text-white relative overflow-hidden transition-colors duration-500">
-      {/* Background Grid */}
-      <div
-        className="absolute inset-0 z-0 pointer-events-none opacity-40 dark:opacity-20"
-        style={{
-          backgroundImage: `radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)`,
-          backgroundSize: "40px 40px",
-          maskImage:
-            "radial-gradient(ellipse at center, black, transparent 90%)",
-        }}
-      />
+    <main className="min-h-screen bg-black text-white pt-24 pb-20">
+      <div className="max-w-7xl mx-auto px-6">
+        {/* Header Section */}
+        <div className="mb-12">
+          <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 tracking-tight">
+            Problems
+          </h1>
+          <p className="text-white/80 text-lg max-w-2xl">
+            Practice curated problems and master data structures & algorithms.
+          </p>
+        </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto pt-24 pb-10 px-6">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-          <div className="bg-slate-50 dark:bg-[#0B101E]/40 border border-green-500/20 backdrop-blur-sm p-8 rounded-2xl text-center group hover:border-green-500/40 transition-all shadow-sm dark:shadow-none">
-            <p className="text-green-600 dark:text-green-500 font-bold uppercase text-[10px] tracking-[0.2em] mb-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-xl text-center hover:border-white/20 transition-all">
+            <p className="text-white/60 font-semibold uppercase text-xs tracking-wide mb-2">
               Easy
             </p>
-            <h3 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
+            <h3 className="text-3xl font-bold tracking-tight text-white">
               {stats.easy.solved} / {stats.easy.total}
             </h3>
           </div>
 
-          <div className="bg-slate-50 dark:bg-[#0B101E]/40 border border-yellow-500/20 backdrop-blur-sm p-8 rounded-2xl text-center group hover:border-yellow-500/40 transition-all shadow-sm dark:shadow-none">
-            <p className="text-yellow-600 dark:text-yellow-500 font-bold uppercase text-[10px] tracking-[0.2em] mb-2">
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-xl text-center hover:border-white/20 transition-all">
+            <p className="text-white/60 font-semibold uppercase text-xs tracking-wide mb-2">
               Medium
             </p>
-            <h3 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
+            <h3 className="text-3xl font-bold tracking-tight text-white">
               {stats.medium.solved} / {stats.medium.total}
             </h3>
           </div>
 
-          <div className="bg-slate-50 dark:bg-[#0B101E]/40 border border-red-500/20 backdrop-blur-sm p-8 rounded-2xl text-center group hover:border-red-500/40 transition-all shadow-sm dark:shadow-none">
-            <p className="text-red-600 dark:text-red-500 font-bold uppercase text-[10px] tracking-[0.2em] mb-2">
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-xl text-center hover:border-white/20 transition-all">
+            <p className="text-white/60 font-semibold uppercase text-xs tracking-wide mb-2">
               Hard
             </p>
-            <h3 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
+            <h3 className="text-3xl font-bold tracking-tight text-white">
               {stats.hard.solved} / {stats.hard.total}
             </h3>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="bg-white dark:bg-transparent rounded-3xl border border-slate-200 dark:border-white/5 p-6 backdrop-blur-md mb-6">
+        <div className="bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 p-6 mb-6">
           <div className="flex flex-col md:flex-row gap-4">
             {/* Search */}
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60" />
               <input
                 type="text"
                 placeholder="Search problems..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-zinc-900/50 border border-slate-200 dark:border-white/5 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                className="w-full pl-10 pr-4 py-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-sm text-white placeholder:text-white/60"
               />
             </div>
 
@@ -150,8 +149,8 @@ export default function ProblemsClient({
                   onClick={() => setDifficultyFilter(diff)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                     difficultyFilter === diff
-                      ? "bg-primary text-white"
-                      : "bg-slate-50 dark:bg-zinc-900/50 text-zinc-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-900"
+                      ? "bg-white text-black"
+                      : "bg-white/5 backdrop-blur-sm text-white/75 hover:bg-white/10 hover:text-white"
                   }`}
                 >
                   {diff === "all" ? "All" : diff}
@@ -162,48 +161,48 @@ export default function ProblemsClient({
         </div>
 
         {/* Problems Table */}
-        <div className="bg-white dark:bg-transparent rounded-3xl border border-slate-200 dark:border-white/5 backdrop-blur-md overflow-hidden">
+        <div className="bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-slate-50 dark:bg-zinc-900/50 border-b border-slate-200 dark:border-white/5">
+              <thead className="bg-white/5 backdrop-blur-sm border-b border-white/10">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-white/80 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-white/80 uppercase tracking-wider">
                     Title
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-white/80 uppercase tracking-wider">
                     Difficulty
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-white/80 uppercase tracking-wider">
                     Topic
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-white/80 uppercase tracking-wider">
                     Acceptance
                   </th>
-                  <th className="px-6 py-4 text-center text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-center text-xs font-bold text-white/80 uppercase tracking-wider">
                     Bookmark
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200 dark:divide-white/5">
+              <tbody className="divide-y divide-white/10">
                 {filteredProblems.map((problem) => (
                   <tr
                     key={problem.id}
-                    className="hover:bg-slate-50 dark:hover:bg-zinc-900/30 transition-colors"
+                    className="hover:bg-white/5 transition-colors"
                   >
                     <td className="px-6 py-4">
                       {problem.isSolved ? (
-                        <CheckCircle2 className="w-5 h-5 text-green-500" />
+                        <CheckCircle2 className="w-5 h-5 text-white/75" />
                       ) : (
-                        <div className="w-5 h-5 rounded-full border-2 border-zinc-300 dark:border-zinc-700" />
+                        <div className="w-5 h-5 rounded-full border-2 border-white/20" />
                       )}
                     </td>
                     <td className="px-6 py-4">
                       <Link
                         href={`/problems/${problem.slug}`}
-                        className="font-medium hover:text-primary transition-colors"
+                        className="font-medium text-white hover:text-white/80 transition-colors"
                       >
                         {problem.title}
                       </Link>
@@ -216,12 +215,12 @@ export default function ProblemsClient({
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                      <span className="text-sm text-white/75">
                         {problem.topic?.name || "General"}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                      <span className="text-sm text-white/75">
                         {problem._count?.solutions || 0} solved
                       </span>
                     </td>
@@ -230,8 +229,8 @@ export default function ProblemsClient({
                         onClick={(e) => handleBookmark(e, problem.id)}
                         className={`p-1.5 rounded-lg transition-colors ${
                           bookmarkedProblems.has(problem.id)
-                            ? "text-emerald-500 hover:text-red-500"
-                            : "text-zinc-400 hover:text-emerald-500"
+                            ? "text-white/75 hover:text-white/50"
+                            : "text-white/40 hover:text-white/75"
                         }`}
                       >
                         <Bookmark className={`w-4 h-4 ${bookmarkedProblems.has(problem.id) ? "fill-current" : ""}`} />
@@ -246,7 +245,7 @@ export default function ProblemsClient({
           {/* Empty State */}
           {filteredProblems.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-zinc-500 dark:text-zinc-400">
+              <p className="text-white/70">
                 No problems found. Try adjusting your filters.
               </p>
             </div>

@@ -348,9 +348,7 @@ export default async function PopularTopics() {
   }
 
   return (
-    <section className="py-24 relative overflow-hidden bg-background">
-      <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[120px] -z-10" />
-
+    <section className="py-16 relative overflow-hidden bg-black">
       <div className="container px-6 mx-auto max-w-7xl">
         <PopularTopicsClient topics={topics} />
       </div>

@@ -27,8 +27,11 @@ export function AdminSettingsClient({
   const [newTopicName, setNewTopicName] = useState("");
   const [newTopicSlug, setNewTopicSlug] = useState("");
   const [newTopicIcon, setNewTopicIcon] = useState("");
+  const [newTopicDescription, setNewTopicDescription] = useState("");
+  const [newTopicContent, setNewTopicContent] = useState("");
   const [newTagName, setNewTagName] = useState("");
   const [newCompanyName, setNewCompanyName] = useState("");
+  const [editingTopic, setEditingTopic] = useState<any>(null);
   const router = useRouter();
 
   const handleAddTopic = async () => {
@@ -41,6 +44,8 @@ export function AdminSettingsClient({
       name: newTopicName,
       slug: newTopicSlug,
       icon: newTopicIcon,
+      description: newTopicDescription,
+      content: newTopicContent,
       order: topics.length + 1,
     });
 
@@ -49,6 +54,8 @@ export function AdminSettingsClient({
       setNewTopicName("");
       setNewTopicSlug("");
       setNewTopicIcon("");
+      setNewTopicDescription("");
+      setNewTopicContent("");
       router.refresh();
     } else {
       alert(result.error || "Failed to add topic");
@@ -65,6 +72,52 @@ export function AdminSettingsClient({
     } else {
       alert(result.error || "Failed to delete topic");
     }
+  };
+
+  const handleEditTopic = (topic: any) => {
+    setEditingTopic(topic);
+    setNewTopicName(topic.name);
+    setNewTopicSlug(topic.slug);
+    setNewTopicIcon(topic.icon || "");
+    setNewTopicDescription(topic.description || "");
+    setNewTopicContent(topic.content || "");
+  };
+
+  const handleUpdateTopic = async () => {
+    if (!editingTopic || !newTopicName || !newTopicSlug) {
+      alert("Name and slug are required!");
+      return;
+    }
+
+    const result = await updateTopicAdmin(editingTopic.id, {
+      name: newTopicName,
+      slug: newTopicSlug,
+      icon: newTopicIcon,
+      description: newTopicDescription,
+      content: newTopicContent,
+    });
+
+    if (result.success) {
+      alert("Topic updated successfully!");
+      setEditingTopic(null);
+      setNewTopicName("");
+      setNewTopicSlug("");
+      setNewTopicIcon("");
+      setNewTopicDescription("");
+      setNewTopicContent("");
+      router.refresh();
+    } else {
+      alert(result.error || "Failed to update topic");
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingTopic(null);
+    setNewTopicName("");
+    setNewTopicSlug("");
+    setNewTopicIcon("");
+    setNewTopicDescription("");
+    setNewTopicContent("");
   };
 
   const handleAddTag = async () => {
@@ -149,33 +202,68 @@ export function AdminSettingsClient({
       {activeTab === "topics" && (
         <div className="space-y-6">
           <div className="bg-card border border-border rounded-2xl p-6">
-            <h3 className="text-lg font-bold mb-4">Add New Topic</h3>
-            <div className="grid grid-cols-3 gap-4">
-              <input
-                type="text"
-                placeholder="Topic Name"
-                value={newTopicName}
-                onChange={(e) => setNewTopicName(e.target.value)}
-                className="px-4 py-2.5 rounded-xl border border-border bg-background outline-none focus:ring-2 focus:ring-primary/20"
+            <h3 className="text-lg font-bold mb-4">
+              {editingTopic ? "Edit Topic" : "Add New Topic"}
+            </h3>
+            <div className="space-y-4">
+              <div className="grid grid-cols-3 gap-4">
+                <input
+                  type="text"
+                  placeholder="Topic Name"
+                  value={newTopicName}
+                  onChange={(e) => setNewTopicName(e.target.value)}
+                  className="px-4 py-2.5 rounded-xl border border-border bg-background outline-none focus:ring-2 focus:ring-primary/20"
+                />
+                <input
+                  type="text"
+                  placeholder="Slug (e.g., arrays)"
+                  value={newTopicSlug}
+                  onChange={(e) => setNewTopicSlug(e.target.value)}
+                  className="px-4 py-2.5 rounded-xl border border-border bg-background outline-none focus:ring-2 focus:ring-primary/20"
+                />
+                <input
+                  type="text"
+                  placeholder="Icon (optional)"
+                  value={newTopicIcon}
+                  onChange={(e) => setNewTopicIcon(e.target.value)}
+                  className="px-4 py-2.5 rounded-xl border border-border bg-background outline-none focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+              <textarea
+                placeholder="Short Description (optional)"
+                value={newTopicDescription}
+                onChange={(e) => setNewTopicDescription(e.target.value)}
+                rows={2}
+                className="w-full px-4 py-2.5 rounded-xl border border-border bg-background outline-none focus:ring-2 focus:ring-primary/20 resize-none"
               />
-              <input
-                type="text"
-                placeholder="Slug (e.g., arrays)"
-                value={newTopicSlug}
-                onChange={(e) => setNewTopicSlug(e.target.value)}
-                className="px-4 py-2.5 rounded-xl border border-border bg-background outline-none focus:ring-2 focus:ring-primary/20"
-              />
-              <input
-                type="text"
-                placeholder="Icon (optional)"
-                value={newTopicIcon}
-                onChange={(e) => setNewTopicIcon(e.target.value)}
-                className="px-4 py-2.5 rounded-xl border border-border bg-background outline-none focus:ring-2 focus:ring-primary/20"
+              <textarea
+                placeholder="Full Content/Guide (Markdown supported)"
+                value={newTopicContent}
+                onChange={(e) => setNewTopicContent(e.target.value)}
+                rows={8}
+                className="w-full px-4 py-2.5 rounded-xl border border-border bg-background outline-none focus:ring-2 focus:ring-primary/20 font-mono text-sm"
               />
             </div>
-            <Button onClick={handleAddTopic} className="mt-4 rounded-xl font-bold">
-              <Plus size={16} className="mr-2" /> Add Topic
-            </Button>
+            <div className="flex gap-3 mt-4">
+              {editingTopic ? (
+                <>
+                  <Button onClick={handleUpdateTopic} className="rounded-xl font-bold">
+                    <Save size={16} className="mr-2" /> Update Topic
+                  </Button>
+                  <Button
+                    onClick={handleCancelEdit}
+                    variant="outline"
+                    className="rounded-xl font-bold"
+                  >
+                    Cancel
+                  </Button>
+                </>
+              ) : (
+                <Button onClick={handleAddTopic} className="rounded-xl font-bold">
+                  <Plus size={16} className="mr-2" /> Add Topic
+                </Button>
+              )}
+            </div>
           </div>
 
           <div className="bg-card border border-border rounded-2xl overflow-hidden">
@@ -192,12 +280,20 @@ export function AdminSettingsClient({
                     <p className="font-semibold">{topic.name}</p>
                     <p className="text-sm text-muted-foreground">/{topic.slug}</p>
                   </div>
-                  <button
-                    onClick={() => handleDeleteTopic(topic.id, topic.name)}
-                    className="p-2 hover:bg-red-500/10 rounded-md text-red-500"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleEditTopic(topic)}
+                      className="p-2 hover:bg-primary/10 rounded-md text-primary"
+                    >
+                      <Edit2 size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteTopic(topic.id, topic.name)}
+                      className="p-2 hover:bg-red-500/10 rounded-md text-red-500"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

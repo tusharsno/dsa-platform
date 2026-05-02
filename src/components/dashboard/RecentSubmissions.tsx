@@ -13,7 +13,7 @@ export function RecentSubmissions({ submissions }: { submissions: any[] }) {
           {submissions.map((sub) => (
             <div
               key={sub.id}
-              className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/5"
+              className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10 hover:border-white/20 transition-all"
             >
               <div>
                 <p className="text-sm font-medium text-white">
